@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LaunchKit Pro — The Premium FastAPI SaaS Backend</title>
+<meta name="description" content="Production FastAPI backend with multi-tenant teams, TOTP 2FA, Google/GitHub login, usage quotas, and signed customer webhooks. 40 endpoints, 22 passing tests.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%230D1526'/><path d='M10 7v14h12v4H6V7h4z' fill='%23F0B45B'/><circle cx='22' cy='10' r='3.4' fill='%2356DDB2'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=Spline+Sans:wght@400;500;600&family=Spline+Sans+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink-0:#080D18;
+  --ink-1:#0D1526;
+  --ink-2:#121C32;
+  --ink-3:#1A2742;
+  --line:#223252;
+  --line-soft:#1A2640;
+  --paper:#EDF1F7;
+  --paper-dim:#9FAEC8;
+  --paper-faint:#65779A;
+  --amber:#F0B45B;
+  --amber-deep:#C8893A;
+  --mint:#56DDB2;
+  --rose:#E8788A;
+  --sky:#7AB8F5;
+  --font-display:"Bricolage Grotesque",sans-serif;
+  --font-body:"Spline Sans",sans-serif;
+  --font-mono:"Spline Sans Mono",monospace;
+  --max:1180px;
+  --r:14px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{
+  background:var(--ink-0);
+  color:var(--paper);
+  font-family:var(--font-body);
+  font-size:16.5px;
+  line-height:1.62;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+::selection{background:rgba(240,180,91,.28)}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+:focus-visible{outline:2px solid var(--amber);outline-offset:3px;border-radius:4px}
+
+.wrap{max-width:var(--max);margin:0 auto;padding:0 28px}
+
+/* ---------- HTTP-header section eyebrows: the signature device ---------- */
+.hx{
+  display:flex;align-items:center;gap:14px;
+  font-family:var(--font-mono);font-size:12.5px;letter-spacing:.04em;
+  color:var(--paper-faint);
+  margin-bottom:22px;white-space:nowrap;
+}
+.hx::after{content:"";height:1px;flex:1;background:linear-gradient(90deg,var(--line),transparent)}
+.hx b{color:var(--amber);font-weight:500}
+.hx span{color:var(--paper-dim)}
+
+/* ---------- Nav ---------- */
+nav{
+  position:sticky;top:0;z-index:60;
+  background:rgba(8,13,24,.82);backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line-soft);
+}
+.nav-in{display:flex;align-items:center;gap:34px;height:66px}
+.logo{display:flex;align-items:center;gap:11px;font-family:var(--font-display);font-weight:700;font-size:19px;letter-spacing:-.01em}
+.logo svg{display:block}
+.logo .pro{font-family:var(--font-mono);font-size:10.5px;font-weight:500;color:var(--ink-0);background:var(--amber);padding:2px 7px;border-radius:5px;letter-spacing:.08em;transform:translateY(1px)}
+.nav-links{display:flex;gap:26px;font-size:14.5px;color:var(--paper-dim);margin-left:auto}
+.nav-links a{transition:color .18s}
+.nav-links a:hover{color:var(--paper)}
+.nav-cta{
+  font-size:14px;font-weight:600;color:var(--ink-0);
+  background:var(--amber);padding:9px 18px;border-radius:9px;
+  transition:transform .18s,box-shadow .18s;
+}
+.nav-cta:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(240,180,91,.32)}
+@media(max-width:880px){
+  .nav-links a:not(.nav-cta){display:none}
+  .nav-cta{font-size:13px;padding:8px 14px;white-space:nowrap}
+  .hx{white-space:normal;flex-wrap:wrap}
+  .hx span{min-width:0}
+  body{font-size:15.5px}
+  .hero{padding:60px 0 70px}
+  section{padding:70px 0}
+}
+
+/* ---------- Hero ---------- */
+.hero{position:relative;padding:88px 0 96px;overflow:hidden}
+.hero::before{
+  content:"";position:absolute;inset:0;
+  background-image:linear-gradient(var(--line-soft) 1px,transparent 1px),linear-gradient(90deg,var(--line-soft) 1px,transparent 1px);
+  background-size:56px 56px;
+  mask-image:radial-gradient(ellipse 90% 80% at 28% 18%,rgba(0,0,0,.5),transparent 70%);
+  pointer-events:none;
+}
+.hero-in{position:relative;display:grid;grid-template-columns:minmax(0,1.02fr) minmax(0,1fr);gap:64px;align-items:center}
+@media(max-width:1020px){.hero-in{grid-template-columns:1fr;gap:52px}}
+.hero h1{
+  font-family:var(--font-display);
+  font-size:clamp(38px,4.6vw,58px);
+  font-weight:700;line-height:1.06;letter-spacing:-.025em;
+  font-variation-settings:"opsz" 76;
+  margin-bottom:22px;
+}
+.hero h1 em{font-style:normal;color:var(--amber)}
+.hero p.lede{font-size:18.5px;color:var(--paper-dim);max-width:33em;margin-bottom:34px}
+.hero p.lede b{color:var(--paper);font-weight:500}
+.hero-ctas{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:42px}
+.btn-amber{
+  display:inline-flex;align-items:center;gap:9px;
+  font-weight:600;font-size:15.5px;color:var(--ink-0);
+  background:linear-gradient(180deg,#F6C476,var(--amber));
+  padding:14px 26px;border-radius:11px;
+  box-shadow:0 1px 0 rgba(255,255,255,.25) inset,0 8px 28px rgba(240,180,91,.22);
+  transition:transform .18s,box-shadow .18s;
+}
+.btn-amber:hover{transform:translateY(-2px);box-shadow:0 1px 0 rgba(255,255,255,.25) inset,0 12px 36px rgba(240,180,91,.34)}
+.btn-ghost{
+  display:inline-flex;align-items:center;gap:9px;
+  font-weight:500;font-size:15.5px;color:var(--paper);
+  border:1px solid var(--line);padding:13px 24px;border-radius:11px;
+  background:rgba(18,28,50,.5);
+  transition:border-color .18s,background .18s;
+}
+.btn-ghost:hover{border-color:var(--paper-faint);background:var(--ink-2)}
+.hero-stats{display:flex;flex-wrap:wrap;gap:0;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:rgba(13,21,38,.6);max-width:560px}
+.hero-stats div{flex:1;min-width:120px;padding:15px 20px;border-right:1px solid var(--line-soft)}
+.hero-stats div:last-child{border-right:none}
+.hero-stats strong{display:block;font-family:var(--font-mono);font-size:21px;font-weight:600;color:var(--paper)}
+.hero-stats span{font-size:12.5px;color:var(--paper-faint);letter-spacing:.02em}
+.hero-stats strong i{font-style:normal;color:var(--mint)}
+
+/* ---------- Terminal ---------- */
+.term{
+  background:var(--ink-1);
+  border:1px solid var(--line);
+  border-radius:16px;
+  box-shadow:0 30px 80px -20px rgba(0,0,0,.6),0 0 0 1px rgba(240,180,91,.04);
+  overflow:hidden;
+  font-family:var(--font-mono);
+  font-size:13.5px;
+}
+.term-bar{display:flex;align-items:center;gap:8px;padding:13px 16px;border-bottom:1px solid var(--line-soft);background:var(--ink-2)}
+.dot{width:11px;height:11px;border-radius:50%;background:var(--ink-3)}
+.dot:nth-child(1){background:#3A4A6E}
+.term-tabs{display:flex;gap:4px;margin-left:14px}
+.term-tab{
+  font-family:var(--font-mono);font-size:12px;color:var(--paper-faint);
+  padding:6px 13px;border-radius:7px;transition:color .15s,background .15s;
+}
+.term-tab[aria-selected="true"]{color:var(--amber);background:rgba(240,180,91,.1)}
+.term-tab:hover{color:var(--paper-dim)}
+.term-body{padding:20px 22px;min-height:328px;line-height:1.75;white-space:pre-wrap;word-break:break-word}
+.t-dim{color:var(--paper-faint)}
+.t-cmd{color:var(--paper)}
+.t-amber{color:var(--amber)}
+.t-mint{color:var(--mint)}
+.t-rose{color:var(--rose)}
+.t-sky{color:var(--sky)}
+.cursor{display:inline-block;width:8px;height:15px;background:var(--amber);vertical-align:-2px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+@media(prefers-reduced-motion:reduce){.cursor{animation:none}}
+
+/* ---------- Sections ---------- */
+section{padding:96px 0;border-top:1px solid var(--line-soft)}
+.sec-title{
+  font-family:var(--font-display);
+  font-size:clamp(28px,3.2vw,40px);font-weight:700;letter-spacing:-.02em;line-height:1.12;
+  margin-bottom:14px;max-width:18em;
+}
+.sec-sub{color:var(--paper-dim);font-size:17px;max-width:38em;margin-bottom:48px}
+.sec-sub a{color:var(--amber);border-bottom:1px solid rgba(240,180,91,.35)}
+
+/* ---------- Explorer ---------- */
+.explorer{
+  display:grid;grid-template-columns:300px 1fr;
+  border:1px solid var(--line);border-radius:16px;overflow:hidden;
+  background:var(--ink-1);min-height:480px;
+}
+@media(max-width:880px){.explorer{grid-template-columns:1fr}}
+.ep-list{border-right:1px solid var(--line-soft);background:var(--ink-2);overflow-y:auto;max-height:560px}
+@media(max-width:880px){.ep-list{border-right:none;border-bottom:1px solid var(--line-soft);max-height:260px}}
+.ep-group{padding:14px 18px 4px;font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--paper-faint)}
+.ep{
+  display:flex;align-items:center;gap:10px;width:100%;text-align:left;
+  padding:9px 18px;font-family:var(--font-mono);font-size:12.5px;color:var(--paper-dim);
+  border-left:2px solid transparent;transition:background .14s,color .14s;
+}
+.ep:hover{background:var(--ink-3);color:var(--paper)}
+.ep[aria-selected="true"]{background:var(--ink-1);color:var(--paper);border-left-color:var(--amber)}
+.method{font-weight:600;font-size:10.5px;width:44px;flex-shrink:0;letter-spacing:.04em}
+.m-get{color:var(--mint)}.m-post{color:var(--amber)}.m-del{color:var(--rose)}.m-patch{color:var(--sky)}
+.ep-view{padding:26px 30px;font-family:var(--font-mono);font-size:13px;overflow-x:auto}
+.ep-view h4{font-family:var(--font-body);font-size:15px;font-weight:600;color:var(--paper);margin-bottom:6px}
+.ep-view .ep-desc{font-family:var(--font-body);font-size:14px;color:var(--paper-dim);margin-bottom:22px;max-width:46em}
+.code-block{background:var(--ink-0);border:1px solid var(--line-soft);border-radius:10px;padding:16px 18px;margin-bottom:16px;line-height:1.7;overflow-x:auto;white-space:pre}
+.code-label{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--paper-faint);margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.status-chip{font-size:11px;padding:1px 8px;border-radius:5px;font-weight:600}
+.s-2xx{color:var(--mint);background:rgba(86,221,178,.1)}
+.s-4xx{color:var(--rose);background:rgba(232,120,138,.1)}
+
+/* ---------- Features ---------- */
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:1px;background:var(--line-soft);border:1px solid var(--line-soft);border-radius:16px;overflow:hidden}
+.feat{background:var(--ink-1);padding:30px 28px;transition:background .2s}
+.feat:hover{background:var(--ink-2)}
+.feat .fi{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:38px;height:38px;border-radius:10px;margin-bottom:18px;
+  background:rgba(240,180,91,.09);border:1px solid rgba(240,180,91,.18);
+}
+.feat h3{font-family:var(--font-display);font-size:18.5px;font-weight:600;letter-spacing:-.01em;margin-bottom:9px}
+.feat p{font-size:14.5px;color:var(--paper-dim)}
+.feat code{font-family:var(--font-mono);font-size:12.5px;color:var(--amber);background:rgba(240,180,91,.08);padding:1px 6px;border-radius:5px}
+
+/* ---------- Flow tabs ---------- */
+.flow-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px}
+.flow-tab{
+  font-family:var(--font-mono);font-size:13px;color:var(--paper-dim);
+  padding:9px 18px;border:1px solid var(--line);border-radius:9px;transition:all .16s;background:var(--ink-1);
+}
+.flow-tab[aria-selected="true"]{color:var(--ink-0);background:var(--amber);border-color:var(--amber);font-weight:600}
+.flow-pane{display:none;position:relative}
+.flow-pane.on{display:block}
+.flow-code{
+  background:var(--ink-1);border:1px solid var(--line);border-radius:16px;
+  padding:26px 30px;font-family:var(--font-mono);font-size:13.5px;line-height:1.8;
+  overflow-x:auto;white-space:pre;
+}
+.copy-btn{
+  position:absolute;top:14px;right:14px;
+  font-family:var(--font-mono);font-size:11.5px;color:var(--paper-faint);
+  border:1px solid var(--line);border-radius:7px;padding:6px 12px;background:var(--ink-2);
+  transition:color .15s,border-color .15s;
+}
+.copy-btn:hover{color:var(--amber);border-color:var(--amber-deep)}
+
+/* ---------- Compare ---------- */
+.cmp-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:16px}
+table.cmp{width:100%;border-collapse:collapse;font-size:14px;min-width:760px;background:var(--ink-1)}
+.cmp th,.cmp td{padding:15px 20px;text-align:left;border-bottom:1px solid var(--line-soft)}
+.cmp thead th{font-family:var(--font-mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--paper-faint);font-weight:500;background:var(--ink-2)}
+.cmp thead th.hl{color:var(--amber)}
+.cmp tbody tr:last-child td{border-bottom:none}
+.cmp td:first-child{color:var(--paper-dim)}
+.cmp td.hl{background:rgba(240,180,91,.045)}
+.yes{color:var(--mint);font-weight:600}
+.no{color:var(--paper-faint)}
+.part{color:var(--sky)}
+.cmp-note{font-size:13px;color:var(--paper-faint);margin-top:14px}
+
+/* ---------- Pricing ---------- */
+.price-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:22px;max-width:880px}
+.price{
+  background:var(--ink-1);border:1px solid var(--line);border-radius:18px;
+  padding:36px 32px;display:flex;flex-direction:column;position:relative;
+}
+.price.featured{border-color:var(--amber-deep);box-shadow:0 0 0 1px rgba(240,180,91,.25),0 24px 70px -24px rgba(240,180,91,.18)}
+.price .badge{
+  position:absolute;top:-13px;left:30px;
+  font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;font-weight:600;
+  color:var(--ink-0);background:var(--amber);padding:5px 12px;border-radius:7px;
+}
+.price h3{font-family:var(--font-display);font-size:21px;font-weight:700;margin-bottom:4px}
+.price .for{font-size:13.5px;color:var(--paper-faint);margin-bottom:22px}
+.amount{display:flex;align-items:baseline;gap:11px;margin-bottom:26px}
+.amount strong{font-family:var(--font-display);font-size:46px;font-weight:700;letter-spacing:-.03em}
+.amount s{color:var(--paper-faint);font-size:19px}
+.amount .per{font-size:13px;color:var(--paper-faint)}
+.price ul{list-style:none;margin-bottom:30px;flex:1}
+.price li{
+  font-size:14.5px;color:var(--paper-dim);padding:7px 0 7px 26px;position:relative;
+}
+.price li::before{content:"✓";position:absolute;left:0;color:var(--mint);font-weight:600}
+.price li.dim{color:var(--paper-faint)}
+.price li.dim::before{content:"—";color:var(--paper-faint)}
+
+/* ---------- FAQ ---------- */
+.faq{max-width:760px}
+.faq details{border-bottom:1px solid var(--line-soft)}
+.faq summary{
+  cursor:pointer;list-style:none;padding:22px 0;
+  font-weight:500;font-size:16.5px;display:flex;justify-content:space-between;align-items:center;gap:20px;
+}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";font-family:var(--font-mono);color:var(--amber);font-size:20px;transition:transform .2s}
+.faq details[open] summary::after{transform:rotate(45deg)}
+.faq .a{padding:0 0 24px;color:var(--paper-dim);font-size:15px;max-width:42em}
+
+/* ---------- Final CTA + footer ---------- */
+.final{
+  text-align:center;padding:110px 0;position:relative;overflow:hidden;
+}
+.final::before{
+  content:"";position:absolute;inset:auto 0 -40% 0;height:80%;
+  background:radial-gradient(ellipse 55% 100% at 50% 100%,rgba(240,180,91,.13),transparent 70%);
+  pointer-events:none;
+}
+.final h2{font-family:var(--font-display);font-size:clamp(30px,3.6vw,46px);font-weight:700;letter-spacing:-.025em;margin-bottom:16px}
+.final p{color:var(--paper-dim);margin-bottom:34px;font-size:17px}
+.sig{
+  font-family:var(--font-mono);font-size:12px;color:var(--paper-faint);
+  margin-top:46px;display:inline-block;border:1px dashed var(--line);
+  padding:9px 18px;border-radius:9px;letter-spacing:.02em;
+}
+.sig b{color:var(--mint);font-weight:500}
+footer{border-top:1px solid var(--line-soft);padding:34px 0;font-size:13.5px;color:var(--paper-faint)}
+.foot-in{display:flex;justify-content:space-between;flex-wrap:wrap;gap:14px}
+
+/* ---------- Reveal ---------- */
+.rv{opacity:0;transform:translateY(18px);transition:opacity .65s ease,transform .65s ease}
+.rv.in{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap nav-in">
+    <a class="logo" href="#top">
+      <svg width="26" height="26" viewBox="0 0 32 32"><rect width="32" height="32" rx="7" fill="#121C32"/><path d="M10 7v14h12v4H6V7h4z" fill="#F0B45B"/><circle cx="22" cy="10" r="3.4" fill="#56DDB2"/></svg>
+      LaunchKit <span class="pro">PRO</span>
+    </a>
+    <div class="nav-links">
+      <a href="#explorer">API explorer</a>
+      <a href="#features">Features</a>
+      <a href="#compare">Compare</a>
+      <a href="#pricing">Pricing</a>
+      <a class="nav-cta" href="#pricing">Get LaunchKit Pro</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="wrap hero-in">
+    <div>
+      <div class="hx"><b>X-LaunchKit-Version:</b><span>2.0.0 · FastAPI · Python 3.11+</span></div>
+      <h1>Login is the easy part.<br>This is <em>the rest.</em></h1>
+      <p class="lede">A production FastAPI backend with <b>multi-tenant teams</b>, <b>TOTP 2FA</b>, <b>Google &amp; GitHub login</b>, <b>usage quotas</b>, and <b>signed customer webhooks</b> — the features every B2B customer asks for and every $99 starter skips.</p>
+      <div class="hero-ctas">
+        <a class="btn-amber" href="#pricing">Get LaunchKit Pro — $399</a>
+        <a class="btn-ghost" href="#explorer">Browse the API ↓</a>
+      </div>
+      <div class="hero-stats">
+        <div><strong>40</strong><span>endpoints</span></div>
+        <div><strong><i>22 ✓</i></strong><span>passing tests</span></div>
+        <div><strong>12</strong><span>data models</span></div>
+        <div><strong>2 min</strong><span>to first run</span></div>
+      </div>
+    </div>
+    <div class="term" aria-label="Interactive terminal demo">
+      <div class="term-bar">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        <div class="term-tabs" role="tablist">
+          <button class="term-tab" role="tab" aria-selected="true" data-term="pytest">pytest</button>
+          <button class="term-tab" role="tab" aria-selected="false" data-term="twofa">2FA login</button>
+          <button class="term-tab" role="tab" aria-selected="false" data-term="hook">webhook</button>
+        </div>
+      </div>
+      <div class="term-body" id="termBody"></div>
+    </div>
+  </div>
+</header>
+
+<section id="explorer">
+  <div class="wrap">
+    <div class="hx rv"><b>X-LaunchKit-Section:</b><span>api-explorer</span></div>
+    <h2 class="sec-title rv">Every response below is real.</h2>
+    <p class="sec-sub rv">No video, no mockups. These are the actual endpoints and the actual JSON LaunchKit Pro returns. Click around — this is what you're buying.</p>
+    <div class="explorer rv">
+      <div class="ep-list" id="epList" role="listbox" aria-label="API endpoints"></div>
+      <div class="ep-view" id="epView"></div>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="wrap">
+    <div class="hx rv"><b>X-LaunchKit-Section:</b><span>modules</span></div>
+    <h2 class="sec-title rv">Ten modules. Zero "exercise left to the reader."</h2>
+    <p class="sec-sub rv">Each one is wired end to end — models, routes, dependencies, and tests — not a TODO comment.</p>
+    <div class="feat-grid rv">
+      <div class="feat"><div class="fi"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F0B45B" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><h3>Authentication</h3><p>JWT access tokens plus <code>rotating single-use refresh tokens</code> — a stolen refresh token dies on first reuse. Email verification, forgot/reset password, all audit-logged.</p></div>
+      <div class="feat"><div class="fi"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F0B45B" stroke-width="2"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z"/><path d="M9 12l2 2 4-4"/></svg></div><h3>Two-factor auth</h3><p>TOTP with QR provisioning for Google Authenticator and Authy. Eight hashed single-use recovery codes. Login returns a 5-minute <code>challenge_token</code> instead of credentials.</p></div>
+      <div class="feat"><div class="fi"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F0B45B" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><circle cx="17.5" cy="9" r="2.5"/><path d="M16 14.6c3 .3 5.5 2.3 5.5 5.4"/></svg></div><h3>Teams &amp; RBAC</h3><p>Organizations with owner / admin / member roles, 7-day email invitations, and a one-line <code>require_role("admin")</code> dependency to gate any route you write.</p></div>
+      <div class="feat"><div class="fi"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F0B45B" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3.5 9h17M3.5 15h17M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg></div><h3>Social login</h3><p>Google and GitHub OAuth with signed state tokens, automatic account creation and linking, and GitHub's private-email edge case handled for you.</p></div>
+      <div class="feat"><div class="fi"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F0B45B" stroke-width="2"><path d="M21 2l-2 2M11.4 12.6L3 21M11.4 12.6a6 6 0 1 0 8.5-8.5l-3.2 3.2-2.8-2.8 3.2-3.2a6 6 0 0 0-5.7 11.3z"/></svg></div><h3>API keys</h3><p>Issue and revoke keys for programmatic access. SHA-256 hashed at rest — a database leak leaks nothing. Last-used tracking and an <code>X-API-Key</code> auth dependency included.</p></div>
+      <div class="feat"><div class="fi"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F0B45B" stroke-width="2"><path d="M3 20h18M5 20V10m5 10V4m5 16v-7m5 7V8"/></svg></div><h3>Usage metering</h3><p>Per-plan monthly quotas with <code>402</code> enforcement and a <code>/usage/me</code> endpoint. Sell usage-based pricing on day one instead of bolting it on at month six.</p></div>
+      <div class="feat"><div class="fi"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F0B45B" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg></div><h3>Customer webhooks</h3><p>Your users register endpoints; deliveries carry an HMAC signature in Stripe's exact <code>t=,v1=</code> scheme, retry three times, and land in an inspectable delivery log.</p></div>
+      <div class="feat"><div class="fi"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F0B45B" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></div><h3>Stripe billing</h3><p>Subscription checkout, customer portal, and signature-verified <em>idempotent</em> webhooks that keep <code>user.plan</code> in sync automatically — duplicates are detected and dropped.</p></div>
+      <div class="feat"><div class="fi"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F0B45B" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg></div><h3>Audit logs</h3><p>Logins, 2FA changes, and team events recorded with IP automatically. Users see their own history; admins query everything. Add yours with one <code>audit()</code> call.</p></div>
+      <div class="feat"><div class="fi"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F0B45B" stroke-width="2"><path d="M12 3v3m0 12v3M3 12h3m12 0h3M5.6 5.6l2.1 2.1m8.6 8.6l2.1 2.1m0-12.8l-2.1 2.1M7.7 16.3l-2.1 2.1"/><circle cx="12" cy="12" r="3"/></svg></div><h3>Production infra</h3><p>Per-IP rate limiting (Redis-ready), request-ID tracing on every response, DB-checked health endpoint, Docker Compose, and GitHub Actions CI on Python 3.11 + 3.12.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="flows">
+  <div class="wrap">
+    <div class="hx rv"><b>X-LaunchKit-Section:</b><span>code</span></div>
+    <h2 class="sec-title rv">The code you'd otherwise write for three months.</h2>
+    <p class="sec-sub rv">Three flows that separate a starter from a product — exactly as they ship in the box.</p>
+    <div class="flow-tabs rv" role="tablist">
+      <button class="flow-tab" role="tab" aria-selected="true" data-flow="f1">Gate a route by team role</button>
+      <button class="flow-tab" role="tab" aria-selected="false" data-flow="f2">Meter an endpoint</button>
+      <button class="flow-tab" role="tab" aria-selected="false" data-flow="f3">Fire a signed webhook</button>
+    </div>
+    <div class="flow-pane on rv" id="f1">
+      <button class="copy-btn" data-copy="f1c">copy</button>
+      <div class="flow-code" id="f1c"><span class="t-dim"># one dependency = full RBAC. member &lt; admin &lt; owner</span>
+<span class="t-amber">@router.delete</span>(<span class="t-mint">"/projects/{project_id}"</span>)
+<span class="t-sky">async def</span> delete_project(
+    project_id: <span class="t-sky">int</span>,
+    membership: Membership = Depends(<span class="t-amber">require_role</span>(<span class="t-mint">"admin"</span>)),
+    db: AsyncSession = Depends(get_db),
+):
+    <span class="t-dim"># a plain member hitting this gets 403 before your code runs</span>
+    ...</div>
+    </div>
+    <div class="flow-pane rv" id="f2">
+      <button class="copy-btn" data-copy="f2c">copy</button>
+      <div class="flow-code" id="f2c"><span class="t-dim"># plan quotas enforced in one line. over quota → 402 + upgrade message</span>
+<span class="t-amber">@router.get</span>(<span class="t-mint">"/reports"</span>)
+<span class="t-sky">async def</span> generate_report(
+    user: User = Depends(get_user_from_api_key),
+    db: AsyncSession = Depends(get_db),
+):
+    <span class="t-sky">await</span> <span class="t-amber">track_and_enforce</span>(db, user)   <span class="t-dim"># free: 1k/mo · pro: 50k · business: 500k</span>
+    <span class="t-sky">return</span> build_report(user)</div>
+    </div>
+    <div class="flow-pane rv" id="f3">
+      <button class="copy-btn" data-copy="f3c">copy</button>
+      <div class="flow-code" id="f3c"><span class="t-dim"># your users get Stripe-grade webhooks. HMAC-signed, retried 3x, logged</span>
+<span class="t-sky">await</span> <span class="t-amber">dispatch_event</span>(user.id, <span class="t-mint">"order.created"</span>, {<span class="t-mint">"order_id"</span>: order.id})
+
+<span class="t-dim"># every delivery carries:</span>
+<span class="t-dim">#   X-LaunchKit-Signature: t=1781169766,v1=9f3ac41e8b...</span>
+<span class="t-dim"># and a verify helper ships for the receiving side:</span>
+<span class="t-amber">verify_webhook_signature</span>(secret, body, header)  <span class="t-mint"># → True</span></div>
+    </div>
+  </div>
+</section>
+
+<section id="compare">
+  <div class="wrap">
+    <div class="hx rv"><b>X-LaunchKit-Section:</b><span>comparison</span></div>
+    <h2 class="sec-title rv">There was no premium FastAPI option. Now there is.</h2>
+    <p class="sec-sub rv">The features below only existed together in Django boilerplates priced up to $999. In FastAPI, they didn't exist at any price.</p>
+    <div class="cmp-scroll rv">
+      <table class="cmp">
+        <thead><tr>
+          <th>Capability</th>
+          <th class="hl">LaunchKit Pro</th>
+          <th>Typical $99 FastAPI kit</th>
+          <th>ShipFast (Next.js)</th>
+          <th>SaaS Pegasus (Django)</th>
+        </tr></thead>
+        <tbody>
+          <tr><td>Teams + role-based access</td><td class="hl yes">✓ owner/admin/member</td><td class="no">—</td><td class="no">—</td><td class="yes">✓</td></tr>
+          <tr><td>TOTP 2FA + recovery codes</td><td class="hl yes">✓</td><td class="no">—</td><td class="no">—</td><td class="yes">✓</td></tr>
+          <tr><td>Google / GitHub login</td><td class="hl yes">✓</td><td class="part">sometimes</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+          <tr><td>Usage quotas / metering</td><td class="hl yes">✓ per-plan, 402 enforced</td><td class="no">—</td><td class="no">—</td><td class="part">partial</td></tr>
+          <tr><td>Signed customer webhooks</td><td class="hl yes">✓ Stripe-style HMAC</td><td class="no">—</td><td class="no">—</td><td class="no">—</td></tr>
+          <tr><td>Stripe subscriptions</td><td class="hl yes">✓ idempotent webhooks</td><td class="part">basic</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+          <tr><td>Audit logging</td><td class="hl yes">✓ with IP</td><td class="no">—</td><td class="no">—</td><td class="part">partial</td></tr>
+          <tr><td>Async-first Python</td><td class="hl yes">✓ SQLAlchemy 2.0</td><td class="part">varies</td><td class="no">n/a</td><td class="no">sync core</td></tr>
+          <tr><td>Test suite included</td><td class="hl yes">✓ 22 integration tests</td><td class="no">rare</td><td class="no">—</td><td class="yes">✓</td></tr>
+          <tr><td>Price</td><td class="hl"><b>$399</b> launch</td><td class="no">~$99</td><td class="no">$199</td><td class="no">$249–$999</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="cmp-note rv">Comparison based on publicly listed features as of mid-2026. ShipFast and SaaS Pegasus are excellent products in their own stacks — they're just not FastAPI.</p>
+  </div>
+</section>
+
+<section id="pricing">
+  <div class="wrap">
+    <div class="hx rv"><b>X-LaunchKit-Section:</b><span>pricing</span></div>
+    <h2 class="sec-title rv">One payment. Unlimited products.</h2>
+    <p class="sec-sub rv">Commercial license: build as many products and client projects as you want. One license per team. No subscriptions, no per-project fees.</p>
+    <div class="price-grid rv">
+      <div class="price">
+        <h3>Starter</h3>
+        <div class="for">For a weekend project that needs solid auth</div>
+        <div class="amount"><strong>$199</strong><span class="per">one-time</span></div>
+        <ul>
+          <li>JWT auth + refresh rotation</li>
+          <li>Email verify &amp; password reset</li>
+          <li>API keys, hashed at rest</li>
+          <li>Stripe subscriptions</li>
+          <li>Rate limiting + Docker</li>
+          <li>10 integration tests</li>
+          <li class="dim">Teams, 2FA, OAuth, metering, webhooks</li>
+        </ul>
+        <a class="btn-ghost" style="justify-content:center" href="https://wolfie16.gumroad.com/l/launchkit-starter">Get Starter</a>
+      </div>
+      <div class="price featured">
+        <span class="badge">LAUNCH — FIRST 25 BUYERS</span>
+        <h3>Pro</h3>
+        <div class="for">For a real B2B SaaS with paying customers</div>
+        <div class="amount"><strong>$399</strong><s>$499</s><span class="per">one-time</span></div>
+        <ul>
+          <li>Everything in Starter</li>
+          <li>Teams, invitations &amp; RBAC</li>
+          <li>TOTP 2FA + recovery codes</li>
+          <li>Google &amp; GitHub login</li>
+          <li>Usage quotas &amp; metering</li>
+          <li>Signed customer webhooks</li>
+          <li>Audit logs + request tracing</li>
+          <li>GitHub Actions CI · 22 tests</li>
+          <li>Email support, 48h response</li>
+        </ul>
+        <a class="btn-amber" style="justify-content:center" href="https://wolfie16.gumroad.com/l/launchkit-pro">Get LaunchKit Pro</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="wrap">
+    <div class="hx rv"><b>X-LaunchKit-Section:</b><span>faq</span></div>
+    <h2 class="sec-title rv">Questions developers actually ask</h2>
+    <div class="faq rv">
+      <details open><summary>Is there a frontend included?</summary><div class="a">No — and that's deliberate. LaunchKit Pro is a pure backend consumed by any React, Next.js, mobile, or CLI client. You keep full control of your UI instead of fighting someone else's component library.</div></details>
+      <details><summary>How fast can I actually run it?</summary><div class="a">Three commands: <code style="font-family:var(--font-mono);color:var(--amber)">pip install -r requirements.txt</code>, copy <code style="font-family:var(--font-mono);color:var(--amber)">.env.example</code>, start uvicorn. SQLite works out of the box, so there's no database to set up for development. Interactive docs are live at /docs in under two minutes.</div></details>
+      <details><summary>How do I know the code is solid?</summary><div class="a">Run <code style="font-family:var(--font-mono);color:var(--amber)">pytest</code> before you write a single line — 22 integration tests cover the full 2FA login flow, RBAC enforcement, quota exhaustion, refresh-token rotation, and webhook signature verification against a mock receiver. CI runs ruff and the suite on Python 3.11 and 3.12.</div></details>
+      <details><summary>What does the license allow?</summary><div class="a">Unlimited personal, commercial, and client projects, forever. The only restriction: you can't resell or redistribute the boilerplate itself as a competing starter kit. One license per team.</div></details>
+      <details><summary>Where can I deploy it?</summary><div class="a">Anywhere Python runs: Railway, Render, and Fly.io are one-command deploys (documented), and Docker Compose with Postgres 16 and Redis 7 is included for everything else.</div></details>
+      <details><summary>What about updates and support?</summary><div class="a">Dependency bumps and fixes are included — buyers download the updated package. Bug reports get an email response within 48 hours.</div></details>
+      <details><summary>Refunds?</summary><div class="a">Source code is final-sale once downloaded, which is standard for code products. That's exactly why this page shows you the real endpoints, the real responses, and the real test count before you pay.</div></details>
+    </div>
+  </div>
+</section>
+
+<div class="final">
+  <div class="wrap">
+    <h2 class="rv">Your product idea is waiting<br>behind three months of plumbing.</h2>
+    <p class="rv">Skip to the part only you can build.</p>
+    <a class="btn-amber rv" href="#pricing">Get LaunchKit Pro — $399</a>
+    <div><span class="sig rv">X-LaunchKit-Signature: t=now,v1=<b>verified · 22 tests passing</b></span></div>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap foot-in">
+    <span>© 2026 LaunchKit. Built with FastAPI, tested with pytest.</span>
+    <span style="font-family:var(--font-mono)">support: wolfie8935@gmail.com</span>
+  </div>
+</footer>
+
+<script>
+/* ============ Terminal: typed sequences ============ */
+const TERM = {
+  pytest: [
+    ["t-dim","$ "],["t-cmd","git clone launchkit-pro && cd launchkit-pro\n"],
+    ["t-dim","$ "],["t-cmd","pip install -r requirements-dev.txt\n"],
+    ["t-dim","$ "],["t-cmd","pytest -q\n"],
+    ["t-mint","......................"],["t-dim","                          [100%]\n"],
+    ["t-mint","22 passed"],["t-dim"," in 9.70s\n\n"],
+    ["t-dim","$ "],["t-cmd","uvicorn app.main:app --reload\n"],
+    ["t-sky","INFO"],["t-dim",":     Uvicorn running on "],["t-amber","http://127.0.0.1:8000\n"],
+    ["t-sky","INFO"],["t-dim",":     Application startup complete. → /docs\n"]
+  ],
+  twofa: [
+    ["t-dim","$ "],["t-cmd","curl -X POST /api/v1/auth/login -d '{...}'\n"],
+    ["t-dim","{\n  "],["t-amber","\"requires_2fa\""],["t-dim",": "],["t-mint","true"],["t-dim",",\n  "],["t-amber","\"challenge_token\""],["t-dim",": \"eyJhbGciOiJIUzI1...\"\n}\n\n"],
+    ["t-dim","$ "],["t-cmd","curl -X POST /api/v1/2fa/verify -d '{\"code\":\"824113\", ...}'\n"],
+    ["t-dim","{\n  "],["t-amber","\"access_token\""],["t-dim",": \"eyJhbGciOiJIUzI1NiIs...\",\n  "],["t-amber","\"refresh_token\""],["t-dim",": \"L8GjsHGS8-INQPVn...\",\n  "],["t-amber","\"token_type\""],["t-dim",": \"bearer\"\n}  "],["t-mint","← authenticated\n"]
+  ],
+  hook: [
+    ["t-dim","→ POST https://customer-app.com/hooks/launchkit\n"],
+    ["t-amber","X-LaunchKit-Event"],["t-dim",": order.created\n"],
+    ["t-amber","X-LaunchKit-Signature"],["t-dim",": t=1781169766,v1=9f3ac41e8b7d...\n\n"],
+    ["t-dim","{\"event\": \"order.created\", \"data\": {\"order_id\": 8421}}\n\n"],
+    ["t-dim","← "],["t-mint","200 OK"],["t-dim","   delivered · attempt 1 of 3 · logged\n"],
+    ["t-dim","\nverify_webhook_signature(secret, body, header)  "],["t-mint","# True\n"]
+  ]
+};
+const termBody = document.getElementById("termBody");
+let termTimer = [];
+const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+function clearTimers(){ termTimer.forEach(t=>clearTimeout(t)); termTimer=[]; }
+function span(cls,txt){ const s=document.createElement("span"); s.className=cls; s.textContent=txt; return s; }
+
+function playTerm(key){
+  clearTimers();
+  termBody.innerHTML="";
+  const cur=document.createElement("span"); cur.className="cursor";
+  termBody.appendChild(cur);
+  const seq=TERM[key];
+  if(reduced){ cur.remove(); seq.forEach(([c,t])=>termBody.appendChild(span(c,t))); termBody.appendChild(cur); return; }
+  let delay=120;
+  seq.forEach(([cls,text])=>{
+    const typed = cls==="t-cmd";
+    if(typed){
+      for(const ch of text){
+        const d=delay; termTimer.push(setTimeout(()=>cur.before(span(cls,ch)),d));
+        delay+=18;
+      }
+      delay+=240;
+    }else{
+      const d=delay; termTimer.push(setTimeout(()=>cur.before(span(cls,text)),d));
+      delay+=text.includes("\n")?160:60;
+    }
+  });
+}
+document.querySelectorAll(".term-tab").forEach(tab=>{
+  tab.addEventListener("click",()=>{
+    document.querySelectorAll(".term-tab").forEach(t=>t.setAttribute("aria-selected","false"));
+    tab.setAttribute("aria-selected","true");
+    playTerm(tab.dataset.term);
+  });
+});
+playTerm("pytest");
+
+/* ============ API Explorer ============ */
+const J = o => JSON.stringify(o,null,2);
+const ENDPOINTS = [
+  {group:"Authentication", items:[
+    {m:"POST",p:"/auth/register",d:"Create an account. Sends a verification email and records an audit entry.",
+     req:J({email:"alice@acme.com",password:"••••••••••",full_name:"Alice Chen"}),
+     code:"201 Created",ok:1,
+     res:J({id:1,email:"alice@acme.com",full_name:"Alice Chen",is_active:true,is_verified:false,is_superuser:false,plan:"free",created_at:"2026-06-11T09:12:45Z"})},
+    {m:"POST",p:"/auth/login",d:"With 2FA enabled, credentials alone never return tokens — you get a 5-minute challenge instead.",
+     req:J({email:"alice@acme.com",password:"••••••••••"}),
+     code:"200 OK",ok:1,
+     res:J({requires_2fa:true,challenge_token:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."})},
+    {m:"POST",p:"/auth/refresh",d:"Refresh tokens are single-use. The old one is revoked the moment it's exchanged — replaying it returns 401.",
+     req:J({refresh_token:"L8GjsHGS8-INQPVnU7dTw..."}),
+     code:"200 OK",ok:1,
+     res:J({access_token:"eyJhbGciOiJIUzI1NiIs...",refresh_token:"xK2mPq9rT4vW8yB1...",token_type:"bearer"})}
+  ]},
+  {group:"Two-factor auth", items:[
+    {m:"POST",p:"/2fa/setup",d:"Returns the TOTP secret and an otpauth:// URI — render it as a QR for Google Authenticator or Authy.",
+     req:"Authorization: Bearer <access_token>",
+     code:"200 OK",ok:1,
+     res:J({secret:"JBSWY3DPEHPK3PXP",otpauth_uri:"otpauth://totp/LaunchKit%20API:alice@acme.com?secret=JBSW...&issuer=LaunchKit%20API"})},
+    {m:"POST",p:"/2fa/enable",d:"Verifies the first code and returns 8 recovery codes — shown exactly once, stored hashed.",
+     req:J({code:"824113"}),
+     code:"200 OK",ok:1,
+     res:J({detail:"2FA enabled. Store these recovery codes safely - they are shown once.",recovery_codes:["a3f8c21e-9b4d70aa","5e2d918c-c47b03f1","…6 more"]})},
+    {m:"POST",p:"/2fa/verify",d:"Completes a 2FA login. Accepts a TOTP code or a single-use recovery code.",
+     req:J({challenge_token:"eyJhbGci...",code:"824113"}),
+     code:"200 OK",ok:1,
+     res:J({access_token:"eyJhbGciOiJIUzI1NiIs...",refresh_token:"mQ7nR2sV5xZ8...",token_type:"bearer"})}
+  ]},
+  {group:"Teams", items:[
+    {m:"POST",p:"/orgs",d:"Create an organization. The creator becomes owner automatically.",
+     req:J({name:"Acme Corp"}),
+     code:"201 Created",ok:1,
+     res:J({id:1,name:"Acme Corp",slug:"acme-corp-b8df24",created_at:"2026-06-11T09:14:02Z"})},
+    {m:"POST",p:"/orgs/{id}/invitations",d:"Invite by email (admin+ only). The invitee gets a 7-day token; their account email must match to accept.",
+     req:J({email:"dev@acme.com",role:"admin"}),
+     code:"201 Created",ok:1,
+     res:J({id:4,email:"dev@acme.com",role:"admin",accepted:false,expires_at:"2026-06-18T09:14:30Z"})},
+    {m:"GET",p:"/orgs/{id}/members",d:"List members with their roles. Plain members can read; only owners change roles.",
+     req:"Authorization: Bearer <access_token>",
+     code:"200 OK",ok:1,
+     res:J([{user_id:1,email:"alice@acme.com",full_name:"Alice Chen",role:"owner"},{user_id:2,email:"dev@acme.com",full_name:"Dev Patel",role:"admin"}])},
+    {m:"DEL",p:"/orgs/{id}/members/{uid}",d:"Role hierarchy is enforced: an admin can't remove another admin, and nobody removes the owner.",
+     req:"Authorization: Bearer <member_token>",
+     code:"403 Forbidden",ok:0,
+     res:J({detail:"Cannot remove a member with equal or higher role"})}
+  ]},
+  {group:"API keys & metering", items:[
+    {m:"POST",p:"/api-keys",d:"The raw key is returned exactly once, then only its SHA-256 hash exists anywhere.",
+     req:J({name:"production"}),
+     code:"201 Created",ok:1,
+     res:J({id:7,name:"production",prefix:"lk_4xKm9pQ",key:"lk_4xKm9pQvR2sT8wY1zB5nC7...",revoked:false,created_at:"2026-06-11T09:15:11Z"})},
+    {m:"GET",p:"/usage/me",d:"Current period usage against the user's plan quota.",
+     req:"Authorization: Bearer <access_token>",
+     code:"200 OK",ok:1,
+     res:J({metric:"api_calls",period:"2026-06",count:312,quota:50000,remaining:49688})},
+    {m:"GET",p:"/example/data",d:"What quota exhaustion looks like to a caller — a clean 402 with an upgrade path, not a crash.",
+     req:"X-API-Key: lk_4xKm9pQ...",
+     code:"402 Payment Required",ok:0,
+     res:J({detail:"Monthly quota of 1000 api_calls exceeded on the 'free' plan. Upgrade to continue."})}
+  ]},
+  {group:"Webhooks & billing", items:[
+    {m:"POST",p:"/webhooks",d:"Your users register their own endpoints. The signing secret is shown once.",
+     req:J({url:"https://customer-app.com/hooks",events:"order.created,order.refunded"}),
+     code:"201 Created",ok:1,
+     res:J({id:3,url:"https://customer-app.com/hooks",events:"order.created,order.refunded",active:true,secret:"whsec_Vn8xK2mPq9rT4vW..."})},
+    {m:"GET",p:"/webhooks/{id}/deliveries",d:"Every delivery attempt is logged: status, success, and attempt count after up-to-3 retries.",
+     req:"Authorization: Bearer <access_token>",
+     code:"200 OK",ok:1,
+     res:J([{id:91,event_type:"order.created",status_code:200,success:true,attempts:1,created_at:"2026-06-11T09:16:40Z"},{id:90,event_type:"order.refunded",status_code:500,success:false,attempts:3,created_at:"2026-06-11T08:02:13Z"}])},
+    {m:"POST",p:"/billing/checkout",d:"Returns a Stripe Checkout URL. The webhook handler syncs user.plan when payment completes — idempotently.",
+     req:J({plan:"pro"}),
+     code:"200 OK",ok:1,
+     res:J({checkout_url:"https://checkout.stripe.com/c/pay/cs_live_a1B2c3..."})}
+  ]},
+  {group:"Audit", items:[
+    {m:"GET",p:"/audit/me",d:"Users see their own security history. Admins query everything, filterable by action.",
+     req:"Authorization: Bearer <access_token>",
+     code:"200 OK",ok:1,
+     res:J([{id:42,action:"auth.login",ip:"103.27.9.114",meta:"",created_at:"2026-06-11T09:12:50Z"},{id:41,action:"2fa.enabled",ip:"103.27.9.114",meta:"",created_at:"2026-06-10T18:30:02Z"},{id:40,action:"org.created",ip:"103.27.9.114",meta:"Acme Corp",created_at:"2026-06-10T18:21:44Z"}])}
+  ]}
+];
+
+const epList=document.getElementById("epList");
+const epView=document.getElementById("epView");
+const mClass={GET:"m-get",POST:"m-post",DEL:"m-del",PATCH:"m-patch"};
+let allBtns=[];
+
+ENDPOINTS.forEach(g=>{
+  const h=document.createElement("div"); h.className="ep-group"; h.textContent=g.group;
+  epList.appendChild(h);
+  g.items.forEach(item=>{
+    const b=document.createElement("button");
+    b.className="ep"; b.setAttribute("role","option"); b.setAttribute("aria-selected","false");
+    b.innerHTML=`<span class="method ${mClass[item.m]}">${item.m}</span><span>${item.p}</span>`;
+    b.addEventListener("click",()=>select(b,item));
+    epList.appendChild(b);
+    allBtns.push({b,item});
+  });
+});
+
+function select(btn,item){
+  allBtns.forEach(({b})=>b.setAttribute("aria-selected","false"));
+  btn.setAttribute("aria-selected","true");
+  const chip=item.ok?"s-2xx":"s-4xx";
+  epView.innerHTML=`
+    <h4><span class="method ${mClass[item.m]}" style="font-size:12px">${item.m}</span> &nbsp;/api/v1${item.p}</h4>
+    <p class="ep-desc">${item.d}</p>
+    <div class="code-label">Request</div>
+    <div class="code-block t-dim">${item.req.replace(/</g,"&lt;")}</div>
+    <div class="code-label">Response <span class="status-chip ${chip}">${item.code}</span></div>
+    <div class="code-block"><span class="t-dim">${item.res.replace(/</g,"&lt;")}</span></div>`;
+}
+select(allBtns[1].b, allBtns[1].item);
+
+/* ============ Flow tabs ============ */
+document.querySelectorAll(".flow-tab").forEach(tab=>{
+  tab.addEventListener("click",()=>{
+    document.querySelectorAll(".flow-tab").forEach(t=>t.setAttribute("aria-selected","false"));
+    tab.setAttribute("aria-selected","true");
+    document.querySelectorAll(".flow-pane").forEach(p=>p.classList.remove("on"));
+    document.getElementById(tab.dataset.flow).classList.add("on");
+  });
+});
+
+/* ============ Copy buttons ============ */
+document.querySelectorAll(".copy-btn").forEach(btn=>{
+  btn.addEventListener("click",async()=>{
+    const txt=document.getElementById(btn.dataset.copy).innerText;
+    try{ await navigator.clipboard.writeText(txt); btn.textContent="copied ✓"; }
+    catch{ btn.textContent="select & copy"; }
+    setTimeout(()=>btn.textContent="copy",1600);
+  });
+});
+
+/* ============ Scroll reveal ============ */
+const io=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target);} });
+},{threshold:.12});
+document.querySelectorAll(".rv").forEach(el=>io.observe(el));
+</script>
+</body>
+</html>
