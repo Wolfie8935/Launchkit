@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>hoard — the CLI that ships your migrations for you</title>
+<meta name="description" content="hoard is a zero-config CLI that diffs, generates, and applies database migrations in one command. Free and open source.">
+<style>
+/* ============================================================
+   THEME TOKENS — edit this block to rebrand the entire page.
+   Every color, radius, and font in the file below reads from
+   these ~12 custom properties. Change them here, nothing else.
+   ============================================================ */
+:root{
+  --brand:#39ff88;         /* primary accent (terminal green) */
+  --brand-dim:#1e7a48;     /* darker brand for borders/shadows */
+  --amber:#ffb86b;         /* secondary accent for highlights */
+  --bg:#0a0d0a;            /* page background */
+  --surface:#111511;       /* card / panel background */
+  --surface-2:#171c17;     /* raised panel background */
+  --border:#22281f;        /* hairline borders */
+  --text:#e7f5ea;          /* primary text */
+  --muted:#8ba492;         /* secondary text */
+  --radius:10px;           /* base corner radius */
+  --radius-lg:16px;        /* larger corner radius */
+  --font-mono:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,Courier,monospace;
+  --font-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --max-w:1120px;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--font-sans);
+  line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+  background-image:
+    radial-gradient(circle at 15% 0%, rgba(57,255,136,0.07), transparent 40%),
+    radial-gradient(circle at 85% 20%, rgba(255,184,107,0.05), transparent 35%);
+}
+a{color:inherit;}
+img{max-width:100%;display:block;}
+.wrap{max-width:var(--max-w);margin:0 auto;padding:0 24px;}
+section{position:relative;}
+
+/* reveal-on-scroll */
+.reveal{opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s ease;}
+.reveal.is-visible{opacity:1;transform:translateY(0);}
+
+/* ---------- Nav ---------- */
+header.nav{
+  position:sticky;top:0;z-index:50;
+  background:rgba(10,13,10,0.85);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--border);
+}
+.nav-inner{
+  max-width:var(--max-w);margin:0 auto;padding:14px 24px;
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+}
+.logo{display:flex;align-items:center;gap:9px;font-weight:700;font-size:17px;letter-spacing:-.02em;}
+.logo-mark{
+  width:26px;height:26px;border-radius:7px;
+  background:linear-gradient(145deg,var(--brand),var(--brand-dim));
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-mono);font-weight:700;color:#04150a;font-size:14px;
+  box-shadow:0 0 18px rgba(57,255,136,0.35);
+}
+nav.links{display:flex;gap:28px;font-size:14px;color:var(--muted);}
+nav.links a{text-decoration:none;transition:color .2s;}
+nav.links a:hover{color:var(--text);}
+.nav-cta{
+  display:flex;align-items:center;gap:14px;
+}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  border-radius:var(--radius);
+  padding:10px 18px;
+  font-size:14px;font-weight:600;
+  text-decoration:none;
+  cursor:pointer;border:1px solid transparent;
+  transition:transform .15s ease, box-shadow .15s ease, background .15s ease, border-color .15s ease;
+  font-family:var(--font-sans);
+  white-space:nowrap;
+}
+.btn:active{transform:scale(.97);}
+.btn-primary{
+  background:var(--brand);color:#04150a;
+  box-shadow:0 0 0 0 rgba(57,255,136,0.5);
+}
+.btn-primary:hover{box-shadow:0 4px 22px rgba(57,255,136,0.35);transform:translateY(-1px);}
+.btn-ghost{
+  background:transparent;color:var(--text);border-color:var(--border);
+}
+.btn-ghost:hover{border-color:var(--brand-dim);background:var(--surface);}
+.hide-sm{display:inline-flex;}
+
+/* ---------- Hero ---------- */
+.hero{padding:88px 0 60px;}
+.hero-grid{display:grid;grid-template-columns:1.05fr 1fr;gap:56px;align-items:center;}
+.eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:var(--font-mono);font-size:12.5px;color:var(--brand);
+  background:rgba(57,255,136,0.08);border:1px solid var(--brand-dim);
+  padding:6px 12px;border-radius:999px;margin-bottom:22px;
+}
+.eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--brand);box-shadow:0 0 8px var(--brand);animation:pulse 1.8s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.35;}}
+h1{
+  font-size:clamp(2.2rem,4.4vw,3.4rem);
+  line-height:1.08;letter-spacing:-.03em;font-weight:800;
+  margin-bottom:20px;
+}
+h1 .accent{color:var(--brand);}
+.hero p.lead{color:var(--muted);font-size:17.5px;max-width:46ch;margin-bottom:32px;}
+.hero-ctas{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:28px;}
+.trust-row{display:flex;align-items:center;gap:18px;color:var(--muted);font-size:13px;flex-wrap:wrap;}
+.trust-row strong{color:var(--text);}
+.stars{color:var(--amber);letter-spacing:1px;}
+
+/* ---------- Terminal ---------- */
+.terminal{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius-lg);
+  box-shadow:0 30px 80px -30px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.02) inset;
+  overflow:hidden;
+}
+.terminal-bar{
+  display:flex;align-items:center;gap:8px;
+  padding:12px 16px;background:var(--surface-2);
+  border-bottom:1px solid var(--border);
+}
+.terminal-bar .tdot{width:11px;height:11px;border-radius:50%;}
+.tdot.r{background:#ff5f57;}
+.tdot.y{background:#febc2e;}
+.tdot.g{background:#28c840;}
+.terminal-title{
+  flex:1;text-align:center;font-family:var(--font-mono);font-size:12px;color:var(--muted);
+}
+.terminal-body{
+  font-family:var(--font-mono);
+  font-size:13.5px;
+  padding:22px 20px;
+  min-height:290px;
+  color:#c9e6d0;
+}
+.term-line{white-space:pre-wrap;word-break:break-word;line-height:1.65;}
+.term-line .prompt{color:var(--brand);}
+.term-line .path{color:var(--amber);}
+.term-line .out{color:var(--muted);}
+.term-line .ok{color:var(--brand);}
+.cursor{display:inline-block;width:7px;height:14px;background:var(--brand);vertical-align:middle;animation:blink 1s steps(1) infinite;margin-left:2px;}
+@keyframes blink{50%{opacity:0;}}
+
+/* ---------- Section heads ---------- */
+.section-head{max-width:600px;margin:0 auto 48px;text-align:center;}
+.kicker{
+  font-family:var(--font-mono);font-size:12.5px;color:var(--brand);
+  text-transform:uppercase;letter-spacing:.12em;margin-bottom:12px;display:block;
+}
+h2{font-size:clamp(1.7rem,3vw,2.3rem);letter-spacing:-.02em;font-weight:800;margin-bottom:14px;}
+.section-head p{color:var(--muted);font-size:16px;}
+
+/* ---------- Features ---------- */
+.features{padding:90px 0;}
+.feature-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;}
+.feature-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);
+  padding:28px 24px;transition:border-color .25s ease, transform .25s ease;
+}
+.feature-card:hover{border-color:var(--brand-dim);transform:translateY(-4px);}
+.feature-icon{
+  width:44px;height:44px;border-radius:11px;
+  background:var(--surface-2);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;margin-bottom:18px;
+  color:var(--brand);
+}
+.feature-card h3{font-size:17px;margin-bottom:9px;letter-spacing:-.01em;}
+.feature-card p{color:var(--muted);font-size:14.5px;}
+
+/* ---------- How it works ---------- */
+.how{padding:90px 0;background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:0;position:relative;}
+.step{padding:0 26px;position:relative;}
+.step:not(:last-child)::after{
+  content:"";position:absolute;top:26px;right:-13px;width:26px;height:1px;
+  background:linear-gradient(90deg,var(--brand-dim),transparent);
+}
+.step-num{
+  font-family:var(--font-mono);font-size:13px;color:var(--brand);
+  width:52px;height:52px;border-radius:50%;
+  border:1px solid var(--brand-dim);
+  display:flex;align-items:center;justify-content:center;margin-bottom:20px;
+  background:rgba(57,255,136,0.06);
+}
+.step h3{font-size:16.5px;margin-bottom:8px;}
+.step p{color:var(--muted);font-size:14.5px;}
+.step code{
+  font-family:var(--font-mono);font-size:13px;color:var(--amber);
+  background:var(--surface-2);border:1px solid var(--border);
+  padding:2px 7px;border-radius:5px;
+}
+
+/* ---------- Stats ---------- */
+.stats{padding:70px 0;}
+.stats-strip{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);
+  overflow:hidden;
+}
+.stat{padding:32px 20px;text-align:center;border-right:1px solid var(--border);}
+.stat:last-child{border-right:none;}
+.stat .num{
+  font-family:var(--font-mono);font-weight:700;font-size:clamp(1.5rem,3vw,2.1rem);
+  color:var(--brand);letter-spacing:-.02em;display:block;
+}
+.stat .label{color:var(--muted);font-size:13px;margin-top:6px;}
+
+/* ---------- Docs CTA ---------- */
+.docs-cta{padding:100px 0 120px;}
+.docs-box{
+  background:linear-gradient(160deg,var(--surface) 0%,var(--surface-2) 100%);
+  border:1px solid var(--border);
+  border-radius:var(--radius-lg);
+  padding:56px 40px;text-align:center;
+  position:relative;overflow:hidden;
+}
+.docs-box::before{
+  content:"";position:absolute;inset:0;
+  background:radial-gradient(circle at 50% 0%, rgba(57,255,136,0.12), transparent 60%);
+  pointer-events:none;
+}
+.docs-box h2{margin-bottom:12px;}
+.docs-box p{color:var(--muted);margin-bottom:30px;max-width:50ch;margin-left:auto;margin-right:auto;}
+.docs-ctas{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
+
+/* ---------- Footer ---------- */
+footer{border-top:1px solid var(--border);padding:36px 0;}
+.footer-inner{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;color:var(--muted);font-size:13.5px;}
+.footer-links{display:flex;gap:22px;}
+.footer-links a{text-decoration:none;color:var(--muted);transition:color .2s;}
+.footer-links a:hover{color:var(--text);}
+
+/* ---------- Responsive ---------- */
+@media (max-width:900px){
+  .hero-grid{grid-template-columns:1fr;gap:40px;}
+  .feature-grid{grid-template-columns:1fr;}
+  .steps{grid-template-columns:1fr;gap:36px;}
+  .step:not(:last-child)::after{display:none;}
+  .stats-strip{grid-template-columns:repeat(2,1fr);}
+  .stat:nth-child(2){border-right:none;}
+  .stat{border-bottom:1px solid var(--border);}
+  nav.links{display:none;}
+}
+@media (max-width:520px){
+  .hide-sm{display:none;}
+  .stats-strip{grid-template-columns:1fr;}
+  .stat{border-right:none;}
+  .docs-box{padding:40px 22px;}
+  .hero{padding:56px 0 40px;}
+  .nav-inner{padding:12px 16px;}
+  .wrap{padding:0 16px;}
+}
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="nav-inner">
+    <div class="logo"><span class="logo-mark">$_</span>hoard</div>
+    <nav class="links">
+      <a href="#features">Features</a>
+      <a href="#how">How it works</a>
+      <a href="#stats">Community</a>
+      <a href="#docs">Docs</a>
+    </nav>
+    <div class="nav-cta">
+      <a href="#docs" class="btn btn-ghost hide-sm">Read the docs</a>
+      <a href="#install" class="btn btn-primary">npm install hoard</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <span class="eyebrow"><span class="dot"></span> v2.4 — now with zero-downtime migrations</span>
+        <h1>Ship database migrations without the <span class="accent">3am rollback</span>.</h1>
+        <p class="lead">hoard diffs your schema, generates safe SQL migrations, and applies them with automatic rollback plans — all from one command. No dashboards, no YAML, no surprises.</p>
+        <div class="hero-ctas" id="install">
+          <a href="#docs" class="btn btn-primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 3v14M6 11l6 6 6-6M4 21h16"/></svg>
+            Install hoard
+          </a>
+          <a href="#how" class="btn btn-ghost">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="9"/><path d="M10 8.5l6 3.5-6 3.5V8.5z"/></svg>
+            Watch 90s demo
+          </a>
+        </div>
+        <div class="trust-row">
+          <span class="stars">★★★★★</span>
+          <span><strong>4.9/5</strong> on npm</span>
+          <span>·</span>
+          <span><strong>12,400+</strong> stars on GitHub</span>
+        </div>
+      </div>
+
+      <div class="terminal reveal" aria-label="Terminal demo of installing and running hoard">
+        <div class="terminal-bar">
+          <span class="tdot r"></span><span class="tdot y"></span><span class="tdot g"></span>
+          <span class="terminal-title">zsh — hoard demo</span>
+        </div>
+        <div class="terminal-body" id="termBody"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="features" id="features">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="kicker">Why hoard</span>
+        <h2>Built for teams who ship fast and sleep well</h2>
+        <p>Three principles, no compromises: safety by default, zero config to start, total control when you need it.</p>
+      </div>
+      <div class="feature-grid">
+        <div class="feature-card reveal">
+          <div class="feature-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z"/><path d="M9 12l2 2 4-4"/></svg>
+          </div>
+          <h3>Reversible by default</h3>
+          <p>Every generated migration ships with a tested rollback script. If a deploy goes sideways, one command undoes it cleanly — no manual SQL forensics.</p>
+        </div>
+        <div class="feature-card reveal">
+          <div class="feature-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z"/></svg>
+          </div>
+          <h3>Zero-downtime by design</h3>
+          <p>hoard rewrites risky operations — column drops, type changes, index builds — into safe, non-locking multi-step plans automatically.</p>
+        </div>
+        <div class="feature-card reveal">
+          <div class="feature-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v5"/></svg>
+          </div>
+          <h3>Works with your stack</h3>
+          <p>Postgres, MySQL, and SQLite out of the box. Plugs into any ORM or none at all — hoard reads your schema, not your framework's opinions.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="how" id="how">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="kicker">How it works</span>
+        <h2>From schema change to production in three commands</h2>
+      </div>
+      <div class="steps">
+        <div class="step reveal">
+          <div class="step-num">01</div>
+          <h3>Edit your schema</h3>
+          <p>Change a model, add a column, whatever you'd normally do. hoard doesn't care how you define your schema.</p>
+        </div>
+        <div class="step reveal">
+          <div class="step-num">02</div>
+          <h3>Generate a plan</h3>
+          <p>Run <code>hoard plan</code> to see a human-readable diff plus the exact SQL that will run, before anything touches your database.</p>
+        </div>
+        <div class="step reveal">
+          <div class="step-num">03</div>
+          <h3>Apply with confidence</h3>
+          <p>Run <code>hoard up</code>. hoard applies changes in safe batches and keeps a rollback ready for the next 24 hours automatically.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="stats" id="stats">
+    <div class="wrap">
+      <div class="stats-strip reveal">
+        <div class="stat"><span class="num">12.4k</span><span class="label">GitHub stars</span></div>
+        <div class="stat"><span class="num">890k</span><span class="label">weekly downloads</span></div>
+        <div class="stat"><span class="num">340+</span><span class="label">contributors</span></div>
+        <div class="stat"><span class="num">99.98%</span><span class="label">migrations rolled back cleanly</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="docs-cta" id="docs">
+    <div class="wrap">
+      <div class="docs-box reveal">
+        <h2>Read the docs, run your first migration in 5 minutes</h2>
+        <p>Full CLI reference, adapter guides for Postgres/MySQL/SQLite, and a CI recipe for automated deploys.</p>
+        <div class="docs-ctas">
+          <a href="#" class="btn btn-primary">Open documentation</a>
+          <a href="#" class="btn btn-ghost">View on GitHub</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap footer-inner">
+    <div class="logo"><span class="logo-mark" style="width:20px;height:20px;font-size:11px;">$_</span>hoard</div>
+    <div class="footer-links">
+      <a href="#">Docs</a>
+      <a href="#">GitHub</a>
+      <a href="#">Changelog</a>
+      <a href="#">MIT License</a>
+    </div>
+    <div>© 2026 hoard. Open source, forever.</div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+
+  // Smooth scroll for in-page nav links
+  document.querySelectorAll('a[href^="#"]').forEach(function(link){
+    link.addEventListener('click', function(e){
+      var id = link.getAttribute('href');
+      if(id.length < 2) return;
+      var target = document.querySelector(id);
+      if(target){
+        e.preventDefault();
+        target.scrollIntoView({behavior:'smooth', block:'start'});
+      }
+    });
+  });
+
+  // Scroll-reveal
+  var revealEls = document.querySelectorAll('.reveal');
+  if('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if(entry.isIntersecting){
+          entry.target.classList.add('is-visible');
+          io.unobserve(entry.target);
+        }
+      });
+    }, {threshold:0.15, rootMargin:'0px 0px -40px 0px'});
+    revealEls.forEach(function(el){ io.observe(el); });
+  } else {
+    revealEls.forEach(function(el){ el.classList.add('is-visible'); });
+  }
+
+  // Fake terminal typing sequence
+  var lines = [
+    {type:'cmd', text:'npm install -g hoard'},
+    {type:'out', text:'added 1 package in 1.2s'},
+    {type:'cmd', text:'hoard init'},
+    {type:'ok',  text:'✓ detected postgres connection\n✓ wrote hoard.config.js'},
+    {type:'cmd', text:'hoard plan'},
+    {type:'out', text:'~ users: add column "last_seen_at" timestamptz\n~ orders: add index "idx_orders_status" (non-locking)'},
+    {type:'cmd', text:'hoard up'},
+    {type:'ok',  text:'✓ applied 2 migrations in 340ms\n✓ rollback plan saved (24h)'}
+  ];
+
+  var body = document.getElementById('termBody');
+  var lineIndex = 0, charIndex = 0;
+  var typingSpeed = 18;
+  var linePause = 550;
+
+  function renderStatic(){
+    // fallback for reduced-motion or if something goes wrong
+    var html = '';
+    lines.forEach(function(l){
+      html += renderLine(l, l.text);
+    });
+    body.innerHTML = html;
+  }
+
+  function renderLine(l, text){
+    if(l.type === 'cmd'){
+      return '<div class="term-line"><span class="prompt">➜</span> <span class="path">~/app</span> ' + escapeHtml(text) + '</div>';
+    } else if(l.type === 'ok'){
+      return '<div class="term-line ok">' + escapeHtml(text).replace(/\n/g,'<br>') + '</div>';
+    } else {
+      return '<div class="term-line out">' + escapeHtml(text).replace(/\n/g,'<br>') + '</div>';
+    }
+  }
+
+  function escapeHtml(s){
+    var div = document.createElement('div');
+    div.textContent = s;
+    return div.innerHTML;
+  }
+
+  var prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if(prefersReducedMotion){
+    renderStatic();
+  } else {
+    typeNextLine();
+  }
+
+  function typeNextLine(){
+    if(lineIndex >= lines.length){
+      // loop after a pause
+      setTimeout(function(){
+        body.innerHTML = '';
+        lineIndex = 0;
+        typeNextLine();
+      }, 2400);
+      return;
+    }
+    var l = lines[lineIndex];
+    if(l.type !== 'cmd'){
+      // instant-ish reveal for output blocks
+      var div = document.createElement('div');
+      div.innerHTML = renderLine(l, l.text);
+      body.appendChild(div.firstChild);
+      lineIndex++;
+      setTimeout(typeNextLine, linePause);
+      return;
+    }
+    charIndex = 0;
+    var wrapper = document.createElement('div');
+    wrapper.className = 'term-line';
+    wrapper.innerHTML = '<span class="prompt">➜</span> <span class="path">~/app</span> <span class="typed"></span><span class="cursor"></span>';
+    body.appendChild(wrapper);
+    var typedSpan = wrapper.querySelector('.typed');
+    var cursor = wrapper.querySelector('.cursor');
+
+    function typeChar(){
+      if(charIndex <= l.text.length){
+        typedSpan.textContent = l.text.slice(0, charIndex);
+        charIndex++;
+        setTimeout(typeChar, typingSpeed + Math.random()*22);
+      } else {
+        cursor.remove();
+        lineIndex++;
+        body.scrollTop = body.scrollHeight;
+        setTimeout(typeNextLine, linePause);
+      }
+    }
+    typeChar();
+  }
+})();
+</script>
+</body>
+</html>

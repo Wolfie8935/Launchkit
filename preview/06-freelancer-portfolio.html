@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nadia Voss — Product Designer for Fast-Moving Teams</title>
+<meta name="description" content="Freelance product designer specializing in B2B SaaS. Selected work, services, process, and a direct line to book a project.">
+<style>
+  /* ============================================================
+     THEME TOKENS — edit this block to re-skin the entire page.
+     Brutalist-lite: near-black/white with a single loud accent.
+     Swap --accent to rebrand instantly.
+     ============================================================ */
+  :root{
+    --brand: #ff3d1a;        /* the one loud accent color */
+    --bg: #f5f5f2;           /* page background — off-white paper */
+    --surface: #ffffff;      /* card background */
+    --ink: #0a0a0a;          /* near-black text/lines */
+    --text: #111111;
+    --muted: #5c5c58;
+    --line: #0a0a0a;         /* borders are ink, not gray — brutalist rule */
+    --radius: 2px;           /* almost no rounding by design */
+    --radius-lg: 4px;
+    --mono: "SF Mono", "Cascadia Code", Consolas, "Courier New", monospace;
+    --sans: "Helvetica Neue", Helvetica, Arial, -apple-system, BlinkMacSystemFont, sans-serif;
+    --maxw: 1180px;
+  }
+
+  *,*::before,*::after{ box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:var(--sans); line-height:1.5; overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  img,svg{ display:block; max-width:100%; }
+  a{ color:inherit; }
+  .wrap{ max-width:var(--maxw); margin:0 auto; padding:0 24px; }
+  .mono{ font-family:var(--mono); }
+
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:10px;
+    padding:16px 30px; font-size:14px; font-weight:700; text-transform:uppercase;
+    letter-spacing:.06em; text-decoration:none; cursor:pointer;
+    border:2px solid var(--ink); border-radius:var(--radius); font-family:var(--sans);
+    transition:transform .18s ease, background .18s ease, color .18s ease;
+  }
+  .btn-primary{ background:var(--ink); color:var(--bg); }
+  .btn-primary:hover{ background:var(--brand); border-color:var(--brand); color:var(--ink); transform:translate(-2px,-2px); }
+  .btn-ghost{ background:transparent; color:var(--ink); }
+  .btn-ghost:hover{ background:var(--ink); color:var(--bg); }
+
+  .reveal{ opacity:0; transform:translateY(28px); transition:opacity .6s ease, transform .6s ease; }
+  .reveal.in{ opacity:1; transform:translateY(0); }
+
+  /* ---------- NAV ---------- */
+  header{
+    position:sticky; top:0; z-index:50; background:var(--bg);
+    border-bottom:2px solid var(--ink);
+  }
+  nav.wrap{ display:flex; align-items:center; justify-content:space-between; padding:20px 24px; }
+  .logo{ font-weight:800; font-size:19px; text-transform:uppercase; letter-spacing:.02em; }
+  .logo span{ color:var(--brand); }
+  .nav-links{ display:flex; gap:30px; list-style:none; margin:0; padding:0; }
+  .nav-links a{ text-decoration:none; font-size:13.5px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; }
+  .nav-links a:hover{ color:var(--brand); }
+  .nav-toggle{ display:none; background:none; border:2px solid var(--ink); cursor:pointer; padding:8px 10px; border-radius:var(--radius); }
+  .nav-toggle span{ display:block; width:20px; height:2px; background:var(--ink); margin:4px 0; }
+
+  /* ---------- HERO ---------- */
+  .hero{ padding:90px 0 60px; border-bottom:2px solid var(--ink); position:relative; }
+  .hero .tag{
+    display:inline-block; font-family:var(--mono); font-size:12.5px; text-transform:uppercase;
+    letter-spacing:.1em; border:2px solid var(--ink); padding:6px 14px; border-radius:999px; margin-bottom:26px;
+  }
+  .hero .tag::before{ content:"● "; color:var(--brand); }
+  .hero h1{
+    font-size:clamp(42px,8vw,104px); line-height:.94; font-weight:800; letter-spacing:-.03em;
+    text-transform:uppercase; margin:0 0 30px;
+  }
+  .hero h1 .accent{ color:var(--brand); font-style:italic; }
+  .hero-sub{ display:flex; justify-content:space-between; gap:40px; align-items:flex-end; flex-wrap:wrap; }
+  .hero-sub p{ font-size:18px; max-width:44ch; color:var(--muted); margin:0; }
+  .hero-actions{ display:flex; gap:14px; flex-wrap:wrap; }
+  .hero-stats{ display:flex; gap:0; border-top:2px solid var(--ink); margin-top:50px; }
+  .hero-stats div{ flex:1; padding:22px 24px; border-right:2px solid var(--ink); }
+  .hero-stats div:last-child{ border-right:none; }
+  .hero-stats .n{ font-size:34px; font-weight:800; font-family:var(--mono); }
+  .hero-stats .l{ font-size:12.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin-top:4px; }
+
+  /* ---------- SECTION SHELL ---------- */
+  section{ padding:90px 0; border-bottom:2px solid var(--ink); }
+  section:last-of-type{ border-bottom:none; }
+  .section-head{ display:flex; justify-content:space-between; align-items:flex-end; gap:24px; margin-bottom:50px; flex-wrap:wrap; }
+  .section-head .num{ font-family:var(--mono); font-size:13px; color:var(--brand); font-weight:700; }
+  .section-head h2{ font-size:clamp(28px,5vw,46px); font-weight:800; text-transform:uppercase; letter-spacing:-.02em; margin:6px 0 0; }
+  .section-head p{ color:var(--muted); max-width:38ch; margin:0; font-size:15px; }
+
+  /* ---------- WORK GRID ---------- */
+  .work-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:2px; background:var(--ink); border:2px solid var(--ink); }
+  .work-card{ background:var(--surface); padding:0; position:relative; overflow:hidden; }
+  .thumb{ height:220px; position:relative; border-bottom:2px solid var(--ink); overflow:hidden; }
+  .thumb .shape{ position:absolute; transition:transform .5s ease; }
+  .work-card:hover .shape{ transform:scale(1.08) rotate(3deg); }
+  .thumb-1{ background:#111; }
+  .thumb-1 .shape{ width:70%; height:70%; top:15%; left:15%; background:var(--brand); border-radius:50%; }
+  .thumb-1 .shape2{ position:absolute; width:40%; height:40%; top:30%; left:30%; border:2px solid #fff; border-radius:50%; }
+  .thumb-2{ background:var(--brand); }
+  .thumb-2 .shape{ width:0; height:0; top:20%; left:30%; border-left:80px solid transparent; border-right:80px solid transparent; border-bottom:140px solid #0a0a0a; }
+  .thumb-3{ background:#e7e5dd; }
+  .thumb-3 .shape{ width:60%; height:60%; top:20%; left:20%; background:transparent; border:14px solid #0a0a0a; }
+  .thumb-3 .shape2{ position:absolute; width:26%; height:26%; bottom:14%; right:14%; background:var(--brand); }
+  .thumb-4{ background:#0a0a0a; }
+  .thumb-4 .shape{ width:80%; height:6px; background:#fff; top:30%; left:10%; transform:rotate(-8deg); }
+  .thumb-4 .shape2{ position:absolute; width:80%; height:6px; background:var(--brand); top:55%; left:10%; transform:rotate(-8deg); }
+  .work-body{ padding:24px 26px 28px; }
+  .work-body .kicker{ font-family:var(--mono); font-size:12px; color:var(--brand); text-transform:uppercase; letter-spacing:.08em; margin-bottom:8px; }
+  .work-body h3{ font-size:22px; font-weight:800; margin:0 0 8px; text-transform:uppercase; }
+  .work-body p{ font-size:14px; color:var(--muted); margin:0 0 14px; }
+  .tagset{ display:flex; gap:8px; flex-wrap:wrap; }
+  .tagset span{ font-family:var(--mono); font-size:11px; border:1px solid var(--ink); padding:4px 9px; border-radius:999px; text-transform:uppercase; }
+
+  /* ---------- SERVICES ---------- */
+  .services{ display:flex; flex-direction:column; border-top:2px solid var(--ink); }
+  .service-row{
+    display:grid; grid-template-columns:1fr 2fr auto; gap:24px; align-items:center;
+    padding:30px 0; border-bottom:2px solid var(--ink);
+  }
+  .service-row h3{ font-size:22px; font-weight:800; text-transform:uppercase; margin:0; }
+  .service-row p{ font-size:14.5px; color:var(--muted); margin:0; max-width:52ch; }
+  .service-row .price{ font-family:var(--mono); font-size:24px; font-weight:700; white-space:nowrap; text-align:right; }
+  .service-row .price small{ display:block; font-size:11px; color:var(--muted); font-weight:400; text-transform:uppercase; }
+
+  /* ---------- PROCESS TIMELINE ---------- */
+  .timeline{ display:grid; grid-template-columns:repeat(4,1fr); gap:0; border:2px solid var(--ink); }
+  .tl-step{ padding:32px 26px; border-right:2px solid var(--ink); position:relative; }
+  .tl-step:last-child{ border-right:none; }
+  .tl-step .idx{ font-family:var(--mono); font-size:44px; font-weight:800; color:var(--brand); line-height:1; margin-bottom:18px; }
+  .tl-step h3{ font-size:17px; text-transform:uppercase; font-weight:800; margin:0 0 10px; }
+  .tl-step p{ font-size:13.5px; color:var(--muted); margin:0; }
+
+  /* ---------- CONTACT ---------- */
+  .contact-grid{ display:grid; grid-template-columns:1fr 1fr; gap:60px; }
+  .contact-info h2{ font-size:clamp(30px,5vw,52px); font-weight:800; text-transform:uppercase; letter-spacing:-.02em; margin:0 0 20px; }
+  .contact-info p{ color:var(--muted); max-width:40ch; margin-bottom:30px; font-size:15.5px; }
+  .contact-detail{ display:flex; align-items:center; gap:12px; margin-bottom:14px; font-family:var(--mono); font-size:14.5px; }
+  .contact-detail svg{ color:var(--brand); flex-shrink:0; }
+
+  form{ display:flex; flex-direction:column; gap:18px; }
+  .field{ display:flex; flex-direction:column; gap:8px; position:relative; }
+  .field label{ font-size:12px; text-transform:uppercase; letter-spacing:.08em; font-weight:700; }
+  .field input, .field textarea{
+    border:2px solid var(--ink); background:var(--surface); padding:14px 16px; font-size:15px;
+    font-family:var(--sans); border-radius:var(--radius); color:var(--text); resize:vertical;
+  }
+  .field input:focus, .field textarea:focus{ outline:none; border-color:var(--brand); }
+  .field .err{ font-size:12px; color:var(--brand); font-weight:700; min-height:14px; font-family:var(--mono); }
+  .field.invalid input, .field.invalid textarea{ border-color:var(--brand); }
+  form .btn{ align-self:flex-start; margin-top:6px; }
+  .form-status{ font-family:var(--mono); font-size:13.5px; margin-top:6px; min-height:18px; }
+  .form-status.ok{ color:#1a7a3c; }
+
+  footer{ padding:40px 0; }
+  .foot-grid{ display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; }
+  .foot-links{ display:flex; gap:22px; list-style:none; margin:0; padding:0; }
+  .foot-links a{ text-decoration:none; font-size:13px; text-transform:uppercase; letter-spacing:.04em; color:var(--muted); }
+  .foot-links a:hover{ color:var(--brand); }
+  .foot-bottom{ font-size:12.5px; color:var(--muted); font-family:var(--mono); }
+
+  @media (max-width:900px){
+    .work-grid{ grid-template-columns:1fr; }
+    .timeline{ grid-template-columns:repeat(2,1fr); }
+    .tl-step:nth-child(2){ border-right:none; }
+    .tl-step:nth-child(1), .tl-step:nth-child(2){ border-bottom:2px solid var(--ink); }
+    .contact-grid{ grid-template-columns:1fr; gap:40px; }
+    .service-row{ grid-template-columns:1fr; gap:8px; }
+    .service-row .price{ text-align:left; }
+  }
+  @media (max-width:640px){
+    .nav-links{ display:none; }
+    .nav-toggle{ display:block; }
+    .hero-stats{ flex-wrap:wrap; }
+    .hero-stats div{ flex:1 1 50%; border-bottom:2px solid var(--ink); }
+    .timeline{ grid-template-columns:1fr; }
+    .tl-step{ border-right:none; border-bottom:2px solid var(--ink); }
+    .tl-step:last-child{ border-bottom:none; }
+    section{ padding:60px 0; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <nav class="wrap">
+    <div class="logo">NADIA<span>.</span>VOSS</div>
+    <ul class="nav-links">
+      <li><a href="#work">Work</a></li>
+      <li><a href="#services">Services</a></li>
+      <li><a href="#process">Process</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <div style="display:flex; align-items:center; gap:14px;">
+      <a href="#contact" class="btn btn-ghost" style="display:none;" id="navCta">Book a call</a>
+      <button class="nav-toggle" id="navToggle" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+  </nav>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <span class="tag mono">Available for projects — Q3 2026</span>
+      <h1>Product design<br>that ships <span class="accent">on time.</span></h1>
+      <div class="hero-sub">
+        <p>Freelance product designer working with B2B SaaS founders who need clean, defensible UI decisions — not more moodboards.</p>
+        <div class="hero-actions">
+          <a href="#contact" class="btn btn-primary">Start a project</a>
+          <a href="#work" class="btn btn-ghost">View selected work</a>
+        </div>
+      </div>
+      <div class="hero-stats reveal">
+        <div><div class="n mono">47</div><div class="l">Projects shipped</div></div>
+        <div><div class="n mono">8yr</div><div class="l">In product design</div></div>
+        <div><div class="n mono">12</div><div class="l">Funded startups</div></div>
+        <div><div class="n mono">100%</div><div class="l">On-time delivery</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="work">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div>
+          <span class="num mono">01 / SELECTED WORK</span>
+          <h2>Recent projects</h2>
+        </div>
+        <p>A sample of product and brand work from the last two years. Full case studies available on request.</p>
+      </div>
+      <div class="work-grid">
+        <div class="work-card reveal">
+          <div class="thumb thumb-1"><div class="shape"></div><div class="shape2"></div></div>
+          <div class="work-body">
+            <div class="kicker">B2B SaaS · Dashboard</div>
+            <h3>Ledgerly</h3>
+            <p>Redesigned the core reporting dashboard for a finance platform, cutting time-to-insight by 40% for its 6,000 daily users.</p>
+            <div class="tagset"><span>UI/UX</span><span>Design system</span><span>Figma</span></div>
+          </div>
+        </div>
+        <div class="work-card reveal">
+          <div class="thumb thumb-2"><div class="shape"></div></div>
+          <div class="work-body">
+            <div class="kicker">Consumer App · Onboarding</div>
+            <h3>Northline</h3>
+            <p>Rebuilt onboarding for a fitness app from a 9-screen slog to a 3-screen flow. Activation rate up 2.1x in six weeks.</p>
+            <div class="tagset"><span>Product design</span><span>Prototyping</span></div>
+          </div>
+        </div>
+        <div class="work-card reveal">
+          <div class="thumb thumb-3"><div class="shape"></div><div class="shape2"></div></div>
+          <div class="work-body">
+            <div class="kicker">Developer Tool · Brand + UI</div>
+            <h3>Cronly</h3>
+            <p>Full brand identity and UI kit for a scheduling API startup, from logo to a 60-component design system in production.</p>
+            <div class="tagset"><span>Branding</span><span>Design system</span><span>Webflow</span></div>
+          </div>
+        </div>
+        <div class="work-card reveal">
+          <div class="thumb thumb-4"><div class="shape"></div><div class="shape2"></div></div>
+          <div class="work-body">
+            <div class="kicker">Marketplace · Landing System</div>
+            <h3>Fielder</h3>
+            <p>Designed a modular landing page system letting a two-person marketing team ship new campaign pages without a designer.</p>
+            <div class="tagset"><span>Web design</span><span>Systems</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="services">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div>
+          <span class="num mono">02 / SERVICES</span>
+          <h2>How we can work together</h2>
+        </div>
+        <p>Fixed-scope engagements, priced upfront. No hourly billing surprises.</p>
+      </div>
+      <div class="services reveal">
+        <div class="service-row">
+          <h3>Product design sprint</h3>
+          <p>A focused 2-week engagement to solve one specific problem — a flow, a feature, or a stalled redesign — with working prototypes at the end.</p>
+          <div class="price">$4,200<small>Flat, 2 weeks</small></div>
+        </div>
+        <div class="service-row">
+          <h3>Design system build</h3>
+          <p>A full component library in Figma plus a matching dev-ready spec, built to scale past your first fifty screens.</p>
+          <div class="price">$8,500<small>Flat, 4–5 weeks</small></div>
+        </div>
+        <div class="service-row">
+          <h3>Landing page design</h3>
+          <p>A single high-conversion landing page, fully designed and prototyped, ready to hand to your developer or build in code myself.</p>
+          <div class="price">$2,400<small>Flat, 1 week</small></div>
+        </div>
+        <div class="service-row">
+          <h3>Ongoing design partner</h3>
+          <p>Monthly retainer for teams that need continuous product design support without the overhead of a full-time hire.</p>
+          <div class="price">$6,000<small>Per month</small></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="process">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div>
+          <span class="num mono">03 / PROCESS</span>
+          <h2>How a project runs</h2>
+        </div>
+        <p>The same four stages on every engagement, so you always know what's next.</p>
+      </div>
+      <div class="timeline reveal">
+        <div class="tl-step">
+          <div class="idx mono">01</div>
+          <h3>Discovery call</h3>
+          <p>A 30-minute call to understand the problem, constraints, and what success looks like before any pixels move.</p>
+        </div>
+        <div class="tl-step">
+          <div class="idx mono">02</div>
+          <h3>Scope & proposal</h3>
+          <p>A written proposal within 48 hours — fixed price, fixed timeline, and exactly what's included.</p>
+        </div>
+        <div class="tl-step">
+          <div class="idx mono">03</div>
+          <h3>Design sprints</h3>
+          <p>Work happens in short, visible sprints with a review checkpoint every week — never a surprise reveal at the end.</p>
+        </div>
+        <div class="tl-step">
+          <div class="idx mono">04</div>
+          <h3>Handoff & support</h3>
+          <p>Dev-ready files, a recorded walkthrough, and two weeks of post-launch support included at no extra cost.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact">
+    <div class="wrap contact-grid">
+      <div class="contact-info reveal">
+        <span class="num mono">04 / CONTACT</span>
+        <h2>Let's build something worth shipping.</h2>
+        <p>Tell me about the project and I'll reply within one business day with next steps — or a straight "not a fit" if it isn't.</p>
+        <div class="contact-detail"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="M4 6l8 7 8-7"/></svg> hello@nadiavoss.design</div>
+        <div class="contact-detail"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> Replies within 24 hours</div>
+        <div class="contact-detail"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12h20M12 2a15 15 0 010 20 15 15 0 010-20z"/></svg> Remote, works EU + US hours</div>
+      </div>
+      <form id="contactForm" novalidate>
+        <div class="field">
+          <label for="name">Name</label>
+          <input type="text" id="name" name="name" placeholder="Jane Cooper" autocomplete="name">
+          <span class="err" id="nameErr"></span>
+        </div>
+        <div class="field">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" placeholder="jane@company.com" autocomplete="email">
+          <span class="err" id="emailErr"></span>
+        </div>
+        <div class="field">
+          <label for="budget">Approximate budget</label>
+          <input type="text" id="budget" name="budget" placeholder="$5,000 – $10,000">
+          <span class="err" id="budgetErr"></span>
+        </div>
+        <div class="field">
+          <label for="message">Project details</label>
+          <textarea id="message" name="message" rows="4" placeholder="What are you building, and what's the timeline?"></textarea>
+          <span class="err" id="messageErr"></span>
+        </div>
+        <button type="submit" class="btn btn-primary">Send project brief</button>
+        <div class="form-status mono" id="formStatus"></div>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="logo">NADIA<span>.</span>VOSS</div>
+      <ul class="foot-links">
+        <li><a href="#work">Work</a></li>
+        <li><a href="#services">Services</a></li>
+        <li><a href="#process">Process</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+      <div class="foot-bottom">&copy; 2026 Nadia Voss Design</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+
+  // Smooth scroll for in-page anchors
+  document.querySelectorAll('a[href^="#"]').forEach(function(link){
+    link.addEventListener('click', function(e){
+      var id = this.getAttribute('href');
+      if(id.length > 1){
+        var target = document.querySelector(id);
+        if(target){
+          e.preventDefault();
+          target.scrollIntoView({behavior:'smooth', block:'start'});
+        }
+      }
+    });
+  });
+
+  // Mobile nav toggle
+  var navToggle = document.getElementById('navToggle');
+  var navLinks = document.querySelector('.nav-links');
+  if(navToggle && navLinks){
+    navToggle.addEventListener('click', function(){
+      var open = navLinks.style.display === 'flex';
+      if(open){
+        navLinks.style.display = '';
+      } else {
+        navLinks.style.cssText = 'display:flex;flex-direction:column;position:absolute;top:66px;left:0;right:0;background:var(--bg);padding:22px 24px;gap:20px;border-bottom:2px solid var(--ink);';
+      }
+    });
+  }
+
+  // Scroll-reveal via IntersectionObserver
+  var revealEls = document.querySelectorAll('.reveal');
+  if('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if(entry.isIntersecting){
+          entry.target.classList.add('in');
+          io.unobserve(entry.target);
+        }
+      });
+    }, {threshold:0.12, rootMargin:'0px 0px -40px 0px'});
+    revealEls.forEach(function(el){ io.observe(el); });
+  } else {
+    revealEls.forEach(function(el){ el.classList.add('in'); });
+  }
+
+  // Contact form validation (client-side only, no network request)
+  var form = document.getElementById('contactForm');
+  var status = document.getElementById('formStatus');
+
+  function setError(fieldId, errId, msg){
+    var field = document.getElementById(fieldId);
+    document.getElementById(errId).textContent = msg;
+    field.closest('.field').classList.toggle('invalid', !!msg);
+  }
+
+  function validate(){
+    var valid = true;
+    var name = document.getElementById('name').value.trim();
+    var email = document.getElementById('email').value.trim();
+    var budget = document.getElementById('budget').value.trim();
+    var message = document.getElementById('message').value.trim();
+    var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if(!name){ setError('name','nameErr','Please enter your name.'); valid = false; }
+    else{ setError('name','nameErr',''); }
+
+    if(!email){ setError('email','emailErr','Please enter your email.'); valid = false; }
+    else if(!emailPattern.test(email)){ setError('email','emailErr','That email looks invalid.'); valid = false; }
+    else{ setError('email','emailErr',''); }
+
+    if(!budget){ setError('budget','budgetErr','Give a rough budget range.'); valid = false; }
+    else{ setError('budget','budgetErr',''); }
+
+    if(!message || message.length < 10){ setError('message','messageErr','Tell me a bit more (10+ characters).'); valid = false; }
+    else{ setError('message','messageErr',''); }
+
+    return valid;
+  }
+
+  if(form){
+    ['name','email','budget','message'].forEach(function(id){
+      document.getElementById(id).addEventListener('blur', validate);
+    });
+
+    form.addEventListener('submit', function(e){
+      e.preventDefault();
+      status.classList.remove('ok');
+      if(validate()){
+        status.textContent = '> Message received — I will reply within one business day.';
+        status.classList.add('ok');
+        form.reset();
+      } else {
+        status.textContent = '> Please fix the highlighted fields above.';
+      }
+    });
+  }
+})();
+</script>
+</body>
+</html>

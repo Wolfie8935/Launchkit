@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fernweh — plan trips with friends, without the group chat chaos</title>
+<meta name="description" content="Fernweh is the trip-planning app that turns 40-message group chats into one shared itinerary everyone actually opens.">
+<style>
+/* ============================================================
+   THEME TOKENS — edit this block to rebrand the entire page.
+   Every color, radius, and font below reads from these custom
+   properties. Swap the palette here and the whole page follows.
+   ============================================================ */
+:root{
+  --brand:#FF6B4A;         /* primary accent (coral) */
+  --brand-2:#7C5CFF;       /* secondary accent (violet) */
+  --brand-soft:#FFEDE7;    /* tinted background for brand elements */
+  --bg:#FFFDF9;            /* page background (warm white) */
+  --surface:#FFFFFF;       /* card background */
+  --surface-2:#FFF6F0;     /* alternate section background */
+  --border:#F0E6DD;        /* hairline borders */
+  --text:#241C1A;          /* primary text */
+  --muted:#8A7A72;         /* secondary text */
+  --radius:18px;           /* base corner radius */
+  --radius-lg:28px;        /* larger corner radius (cards, phone) */
+  --font-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --max-w:1140px;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--font-sans);
+  line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+a{color:inherit;}
+img{max-width:100%;display:block;}
+.wrap{max-width:var(--max-w);margin:0 auto;padding:0 24px;}
+button{font-family:inherit;}
+
+.reveal{opacity:0;transform:translateY(20px);transition:opacity .65s ease,transform .65s ease;}
+.reveal.is-visible{opacity:1;transform:translateY(0);}
+.reveal.from-left{transform:translateX(-24px);}
+.reveal.from-left.is-visible{transform:translateX(0);}
+.reveal.from-right{transform:translateX(24px);}
+.reveal.from-right.is-visible{transform:translateX(0);}
+
+/* ---------- Nav ---------- */
+header.nav{
+  position:sticky;top:0;z-index:50;
+  background:rgba(255,253,249,0.86);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+}
+.nav-inner{
+  max-width:var(--max-w);margin:0 auto;padding:16px 24px;
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:19px;letter-spacing:-.02em;}
+.logo-mark{
+  width:32px;height:32px;border-radius:10px;
+  background:linear-gradient(140deg,var(--brand),var(--brand-2));
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;font-size:16px;
+}
+nav.links{display:flex;gap:30px;font-size:15px;color:var(--muted);font-weight:500;}
+nav.links a{text-decoration:none;transition:color .2s;}
+nav.links a:hover{color:var(--text);}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  border-radius:999px;
+  padding:12px 22px;
+  font-size:15px;font-weight:700;
+  text-decoration:none;
+  cursor:pointer;border:1px solid transparent;
+  transition:transform .18s ease, box-shadow .18s ease, background .18s ease;
+  white-space:nowrap;
+}
+.btn:active{transform:scale(.96);}
+.btn-primary{
+  background:var(--brand);color:#fff;
+  box-shadow:0 8px 20px -6px rgba(255,107,74,0.55);
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 26px -6px rgba(255,107,74,0.6);}
+.btn-ghost{background:var(--surface-2);color:var(--text);border-color:var(--border);}
+.btn-ghost:hover{background:var(--border);}
+.btn-sm{padding:9px 16px;font-size:13.5px;}
+.hide-sm{display:inline-flex;}
+
+/* ---------- Hero ---------- */
+.hero{padding:80px 0 40px;position:relative;}
+.hero::before{
+  content:"";position:absolute;top:-100px;right:-140px;width:480px;height:480px;
+  background:radial-gradient(circle, rgba(124,92,255,0.16), transparent 65%);
+  pointer-events:none;
+}
+.hero-grid{display:grid;grid-template-columns:1fr 0.85fr;gap:50px;align-items:center;}
+.eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:13px;font-weight:700;color:var(--brand);
+  background:var(--brand-soft);
+  padding:7px 14px;border-radius:999px;margin-bottom:22px;
+}
+h1{
+  font-size:clamp(2.3rem,4.6vw,3.5rem);
+  line-height:1.06;letter-spacing:-.03em;font-weight:800;
+  margin-bottom:20px;
+}
+h1 .accent{color:var(--brand);}
+.hero p.lead{color:var(--muted);font-size:18px;max-width:44ch;margin-bottom:32px;}
+.hero-ctas{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:30px;}
+.store-badges{display:flex;gap:12px;flex-wrap:wrap;}
+.store-badge{
+  display:flex;align-items:center;gap:10px;
+  background:var(--text);color:#fff;
+  padding:9px 16px;border-radius:12px;
+  text-decoration:none;transition:transform .15s ease, opacity .15s ease;
+}
+.store-badge:hover{transform:translateY(-2px);opacity:.9;}
+.store-badge .sb-text{line-height:1.2;}
+.store-badge .sb-sub{font-size:10px;opacity:.75;display:block;}
+.store-badge .sb-main{font-size:15px;font-weight:700;display:block;}
+
+/* ---------- Phone mockup (pure CSS) ---------- */
+.phone-stage{display:flex;justify-content:center;position:relative;}
+.phone{
+  width:280px;height:572px;
+  background:#101014;
+  border-radius:46px;
+  padding:12px;
+  box-shadow:0 40px 80px -30px rgba(36,28,26,0.35), 0 0 0 1px rgba(0,0,0,0.06);
+  position:relative;
+  transform:rotate(2deg);
+}
+.phone-screen{
+  width:100%;height:100%;
+  background:var(--surface-2);
+  border-radius:34px;
+  overflow:hidden;
+  position:relative;
+  display:flex;flex-direction:column;
+}
+.notch{
+  position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:120px;height:26px;background:#101014;border-radius:0 0 16px 16px;z-index:5;
+}
+.app-statusbar{
+  padding:38px 20px 10px;display:flex;justify-content:space-between;font-size:11px;font-weight:700;color:var(--text);
+}
+.app-header{padding:6px 20px 14px;}
+.app-header h4{font-size:19px;font-weight:800;letter-spacing:-.02em;}
+.app-header p{font-size:12px;color:var(--muted);margin-top:2px;}
+.app-body{flex:1;padding:0 16px 16px;display:flex;flex-direction:column;gap:10px;overflow:hidden;}
+.trip-card{
+  background:var(--surface);border-radius:16px;padding:12px;
+  display:flex;gap:10px;align-items:center;
+  box-shadow:0 2px 10px rgba(36,28,26,0.05);
+  border:1px solid var(--border);
+}
+.trip-thumb{
+  width:44px;height:44px;border-radius:12px;flex-shrink:0;
+  background:linear-gradient(135deg,var(--brand),var(--brand-2));
+}
+.trip-info{flex:1;min-width:0;}
+.trip-info .t1{font-size:13px;font-weight:700;}
+.trip-info .t2{font-size:11px;color:var(--muted);margin-top:2px;}
+.trip-avatars{display:flex;}
+.trip-avatars span{
+  width:20px;height:20px;border-radius:50%;border:2px solid var(--surface);
+  background:var(--border);margin-left:-6px;
+}
+.trip-avatars span:first-child{margin-left:0;}
+.app-tabbar{
+  display:flex;justify-content:space-around;padding:12px 10px 18px;
+  border-top:1px solid var(--border);background:var(--surface);
+}
+.app-tabbar .tab{width:22px;height:22px;border-radius:7px;background:var(--border);}
+.app-tabbar .tab.active{background:var(--brand);}
+.fab{
+  position:absolute;bottom:78px;right:18px;width:44px;height:44px;border-radius:50%;
+  background:var(--brand);display:flex;align-items:center;justify-content:center;color:#fff;
+  box-shadow:0 8px 16px -4px rgba(255,107,74,0.5);
+  font-size:22px;font-weight:300;line-height:0;
+}
+.float-chip{
+  position:absolute;background:var(--surface);border-radius:16px;padding:10px 14px;
+  box-shadow:0 14px 30px -10px rgba(36,28,26,0.25);
+  font-size:12px;font-weight:700;display:flex;align-items:center;gap:8px;
+  border:1px solid var(--border);
+}
+.float-chip.c1{top:14%;left:-30px;animation:float1 5s ease-in-out infinite;}
+.float-chip.c2{bottom:20%;right:-26px;animation:float2 6s ease-in-out infinite;}
+.float-chip .emoji-dot{width:26px;height:26px;border-radius:8px;background:var(--brand-soft);display:flex;align-items:center;justify-content:center;font-size:14px;}
+@keyframes float1{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
+@keyframes float2{0%,100%{transform:translateY(0);}50%{transform:translateY(10px);}}
+
+/* ---------- Section heads ---------- */
+.section-head{max-width:600px;margin:0 auto 54px;text-align:center;}
+.kicker{
+  font-size:13px;font-weight:800;color:var(--brand);
+  text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px;display:block;
+}
+h2{font-size:clamp(1.8rem,3.2vw,2.5rem);letter-spacing:-.025em;font-weight:800;margin-bottom:14px;}
+.section-head p{color:var(--muted);font-size:17px;}
+
+/* ---------- Feature rows (alternating) ---------- */
+.features{padding:100px 0;}
+.feature-row{
+  display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;
+  padding:60px 0;
+}
+.feature-row:not(:last-child){border-bottom:1px solid var(--border);}
+.feature-row.reverse .feature-visual{order:2;}
+.feature-row.reverse .feature-copy{order:1;}
+.feature-tag{
+  display:inline-block;font-size:12.5px;font-weight:800;color:var(--brand-2);
+  background:rgba(124,92,255,0.1);padding:5px 12px;border-radius:999px;margin-bottom:16px;
+}
+.feature-copy h3{font-size:26px;font-weight:800;letter-spacing:-.02em;margin-bottom:14px;}
+.feature-copy p{color:var(--muted);font-size:16px;max-width:42ch;}
+.feature-visual{
+  background:var(--surface-2);border-radius:var(--radius-lg);
+  padding:36px;min-height:280px;
+  display:flex;align-items:center;justify-content:center;
+  border:1px solid var(--border);
+}
+.mock-list{width:100%;max-width:320px;display:flex;flex-direction:column;gap:12px;}
+.mock-item{
+  background:var(--surface);border-radius:14px;padding:14px;display:flex;gap:12px;align-items:center;
+  box-shadow:0 2px 12px rgba(36,28,26,0.04);
+}
+.mock-icon{width:38px;height:38px;border-radius:10px;flex-shrink:0;}
+.mock-line{height:9px;border-radius:5px;background:var(--border);margin-bottom:6px;}
+.mock-bars{display:flex;gap:6px;align-items:flex-end;height:120px;width:100%;max-width:280px;}
+.mock-bars .bar{flex:1;border-radius:6px 6px 0 0;background:linear-gradient(180deg,var(--brand),var(--brand-2));}
+.mock-map{
+  width:100%;max-width:300px;height:220px;border-radius:16px;
+  background:
+    repeating-linear-gradient(45deg, rgba(124,92,255,0.06) 0 2px, transparent 2px 14px),
+    var(--surface);
+  border:1px solid var(--border);
+  position:relative;
+}
+.mock-map .pin{
+  position:absolute;width:14px;height:14px;border-radius:50% 50% 50% 0;
+  background:var(--brand);transform:rotate(-45deg);
+}
+.mock-map .pin.p1{top:40%;left:30%;}
+.mock-map .pin.p2{top:60%;left:60%;background:var(--brand-2);}
+.mock-map .pin.p3{top:25%;left:65%;}
+.mock-map .route{
+  position:absolute;top:0;left:0;width:100%;height:100%;
+}
+
+/* ---------- Testimonials ---------- */
+.testimonials{padding:100px 0;background:var(--surface-2);}
+.test-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;}
+.test-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);
+  padding:26px;display:flex;flex-direction:column;gap:16px;
+}
+.test-stars{color:var(--brand);font-size:14px;letter-spacing:2px;}
+.test-quote{font-size:15px;line-height:1.6;color:var(--text);}
+.test-person{display:flex;align-items:center;gap:10px;margin-top:auto;}
+.test-avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--brand),var(--brand-2));}
+.test-name{font-size:13.5px;font-weight:700;}
+.test-handle{font-size:12px;color:var(--muted);}
+
+/* ---------- Waitlist ---------- */
+.waitlist{padding:110px 0 120px;}
+.waitlist-box{
+  background:var(--text);color:#fff;border-radius:var(--radius-lg);
+  padding:64px 40px;text-align:center;position:relative;overflow:hidden;
+}
+.waitlist-box::before{
+  content:"";position:absolute;top:-80px;left:-80px;width:280px;height:280px;border-radius:50%;
+  background:radial-gradient(circle, rgba(255,107,74,0.35), transparent 70%);
+}
+.waitlist-box::after{
+  content:"";position:absolute;bottom:-100px;right:-60px;width:320px;height:320px;border-radius:50%;
+  background:radial-gradient(circle, rgba(124,92,255,0.3), transparent 70%);
+}
+.waitlist-box h2{color:#fff;position:relative;}
+.waitlist-box p{color:rgba(255,255,255,0.7);margin-bottom:32px;max-width:46ch;margin-left:auto;margin-right:auto;position:relative;}
+.waitlist-form{
+  display:flex;gap:10px;max-width:440px;margin:0 auto;position:relative;flex-wrap:wrap;justify-content:center;
+}
+.waitlist-form input{
+  flex:1;min-width:200px;
+  padding:14px 18px;border-radius:999px;border:1px solid rgba(255,255,255,0.2);
+  background:rgba(255,255,255,0.08);color:#fff;font-size:15px;outline:none;
+  transition:border-color .2s, background .2s;
+}
+.waitlist-form input::placeholder{color:rgba(255,255,255,0.45);}
+.waitlist-form input:focus{border-color:var(--brand);background:rgba(255,255,255,0.13);}
+.waitlist-form input.error{border-color:#ff8a7a;}
+.waitlist-msg{margin-top:14px;font-size:13.5px;min-height:20px;position:relative;}
+.waitlist-msg.success{color:#8fffb0;}
+.waitlist-msg.error{color:#ff9a8a;}
+
+/* ---------- Footer ---------- */
+footer{padding:40px 0;border-top:1px solid var(--border);}
+.footer-inner{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;color:var(--muted);font-size:13.5px;}
+.footer-links{display:flex;gap:22px;}
+.footer-links a{text-decoration:none;color:var(--muted);transition:color .2s;}
+.footer-links a:hover{color:var(--text);}
+
+/* ---------- Responsive ---------- */
+@media (max-width:960px){
+  .hero-grid{grid-template-columns:1fr;gap:48px;}
+  .phone-stage{order:-1;}
+  .feature-row, .feature-row.reverse{grid-template-columns:1fr;gap:32px;}
+  .feature-row.reverse .feature-visual, .feature-row.reverse .feature-copy{order:unset;}
+  .test-grid{grid-template-columns:1fr;}
+  nav.links{display:none;}
+}
+@media (max-width:520px){
+  .hide-sm{display:none;}
+  .phone{width:230px;height:470px;border-radius:38px;}
+  .waitlist-box{padding:44px 22px;}
+  .waitlist-form{flex-direction:column;}
+  .waitlist-form input{width:100%;}
+  .wrap{padding:0 16px;}
+  .float-chip{display:none;}
+  .hero{padding:52px 0 24px;}
+}
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="nav-inner">
+    <div class="logo"><span class="logo-mark">✦</span>Fernweh</div>
+    <nav class="links">
+      <a href="#features">Features</a>
+      <a href="#loved">Loved by</a>
+      <a href="#waitlist">Get early access</a>
+    </nav>
+    <a href="#waitlist" class="btn btn-primary btn-sm">Join waitlist</a>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <span class="eyebrow">🎒 Launching this spring</span>
+        <h1>Trip planning your group chat was never built for.</h1>
+        <p class="lead">Fernweh turns 40 scattered messages into one shared itinerary, split expenses, and a map everyone can actually follow — before you even land.</p>
+        <div class="hero-ctas">
+          <a href="#waitlist" class="btn btn-primary">Get early access</a>
+          <a href="#features" class="btn btn-ghost">See how it works</a>
+        </div>
+        <div class="store-badges">
+          <a href="#" class="store-badge" aria-label="Download on the App Store">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M16.365 1.43c0 1.14-.468 2.156-1.213 2.912-.822.835-2.14 1.484-3.21 1.4-.14-1.096.428-2.256 1.192-3.02.836-.858 2.28-1.5 3.23-1.29Zm3.99 16.75c-.51 1.156-.75 1.67-1.4 2.68-.91 1.42-2.19 3.19-3.78 3.2-1.41.02-1.77-.92-3.68-.91-1.91.01-2.31.93-3.72.91-1.59-.02-2.8-1.61-3.72-3.02-2.55-3.94-2.82-8.56-1.24-11.02.99-1.53 2.62-2.5 4.28-2.53 1.5-.03 2.9.98 3.68.98.78 0 2.5-1.21 4.24-1.03.72.03 2.75.29 4.06 2.19-.11.07-2.42 1.42-2.4 4.19.02 3.34 2.94 4.34 2.98 4.36-.03.09-.47 1.52-1.55 3Z"/></svg>
+            <span class="sb-text"><span class="sb-sub">Download on the</span><span class="sb-main">App Store</span></span>
+          </a>
+          <a href="#" class="store-badge" aria-label="Get it on Google Play">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M3.6 2.6c-.4.3-.6.8-.6 1.4v16c0 .6.2 1.1.6 1.4l9.3-9.4-9.3-9.4Zm11.2 9.4 2.7-2.7 3.9-2.2c.7-.4.7-1.4 0-1.8l-3.9-2.2-2.7 2.7 2.5 2.5-2.5 2.5Zm-1 1L4.4 22.3c.3.1.7.1 1.1-.1l11.4-6.4-2.1-2.1Zm0-2 2.1-2.1-11.4-6.4c-.4-.2-.8-.2-1.1-.1l10.4 8.6Z"/></svg>
+            <span class="sb-text"><span class="sb-sub">GET IT ON</span><span class="sb-main">Google Play</span></span>
+          </a>
+        </div>
+      </div>
+
+      <div class="phone-stage">
+        <div class="float-chip c1 reveal"><span class="emoji-dot">💸</span> Split $1,240 evenly</div>
+        <div class="phone">
+          <div class="phone-screen">
+            <div class="notch"></div>
+            <div class="app-statusbar"><span>9:41</span><span>●●●●</span></div>
+            <div class="app-header">
+              <h4>Your trips</h4>
+              <p>3 upcoming, 2 need your RSVP</p>
+            </div>
+            <div class="app-body">
+              <div class="trip-card">
+                <div class="trip-thumb"></div>
+                <div class="trip-info">
+                  <div class="t1">Lisbon in October</div>
+                  <div class="t2">6 days · 5 going</div>
+                </div>
+                <div class="trip-avatars"><span></span><span></span><span></span></div>
+              </div>
+              <div class="trip-card">
+                <div class="trip-thumb" style="background:linear-gradient(135deg,#7C5CFF,#FF6B4A);"></div>
+                <div class="trip-info">
+                  <div class="t1">Kyoto cherry blossoms</div>
+                  <div class="t2">9 days · 3 going</div>
+                </div>
+                <div class="trip-avatars"><span></span><span></span></div>
+              </div>
+              <div class="trip-card">
+                <div class="trip-thumb" style="background:linear-gradient(135deg,#FFB86B,#FF6B4A);"></div>
+                <div class="trip-info">
+                  <div class="t1">Bachelor weekend, Austin</div>
+                  <div class="t2">3 days · 8 going</div>
+                </div>
+                <div class="trip-avatars"><span></span><span></span><span></span></div>
+              </div>
+            </div>
+            <div class="fab">+</div>
+            <div class="app-tabbar">
+              <div class="tab active"></div>
+              <div class="tab"></div>
+              <div class="tab"></div>
+              <div class="tab"></div>
+            </div>
+          </div>
+        </div>
+        <div class="float-chip c2 reveal"><span class="emoji-dot">🗺️</span> Itinerary synced</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="features" id="features">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="kicker">What makes it click</span>
+        <h2>Everything the group chat couldn't hold</h2>
+      </div>
+
+      <div class="feature-row">
+        <div class="feature-copy reveal from-left">
+          <span class="feature-tag">Shared itinerary</span>
+          <h3>One timeline, not eleven screenshots</h3>
+          <p>Drag in flights, bookings, and ideas. Everyone sees the same up-to-date plan — no more "wait, is this the final version?"</p>
+        </div>
+        <div class="feature-visual reveal from-right">
+          <div class="mock-list">
+            <div class="mock-item">
+              <div class="mock-icon" style="background:linear-gradient(135deg,#FF6B4A,#FFB86B);"></div>
+              <div style="flex:1;"><div class="mock-line" style="width:70%;"></div><div class="mock-line" style="width:45%;background:var(--brand-soft);"></div></div>
+            </div>
+            <div class="mock-item">
+              <div class="mock-icon" style="background:linear-gradient(135deg,#7C5CFF,#FF6B4A);"></div>
+              <div style="flex:1;"><div class="mock-line" style="width:55%;"></div><div class="mock-line" style="width:80%;background:var(--brand-soft);"></div></div>
+            </div>
+            <div class="mock-item">
+              <div class="mock-icon" style="background:linear-gradient(135deg,#FFB86B,#7C5CFF);"></div>
+              <div style="flex:1;"><div class="mock-line" style="width:65%;"></div><div class="mock-line" style="width:35%;background:var(--brand-soft);"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="feature-row reverse">
+        <div class="feature-copy reveal from-right">
+          <span class="feature-tag">Fair splitting</span>
+          <h3>Expenses split before resentment builds</h3>
+          <p>Log a cost once, split it any way your group wants, and settle up with one tap at the end of the trip. No spreadsheets required.</p>
+        </div>
+        <div class="feature-visual reveal from-left">
+          <div class="mock-bars">
+            <div class="bar" style="height:40%;"></div>
+            <div class="bar" style="height:75%;"></div>
+            <div class="bar" style="height:55%;"></div>
+            <div class="bar" style="height:90%;"></div>
+            <div class="bar" style="height:60%;"></div>
+            <div class="bar" style="height:35%;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="feature-row">
+        <div class="feature-copy reveal from-left">
+          <span class="feature-tag">Live map</span>
+          <h3>Every stop, pinned and in order</h3>
+          <p>Fernweh turns your itinerary into a live route so nobody's asking "where are we meeting" at hour two of the trip.</p>
+        </div>
+        <div class="feature-visual reveal from-right">
+          <div class="mock-map">
+            <div class="pin p1"></div>
+            <div class="pin p2"></div>
+            <div class="pin p3"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="testimonials" id="loved">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="kicker">Loved by early testers</span>
+        <h2>Trip organizers everywhere agree</h2>
+      </div>
+      <div class="test-grid">
+        <div class="test-card reveal">
+          <div class="test-stars">★★★★★</div>
+          <p class="test-quote">"We planned an 8-person Portugal trip in one evening. My group chat used to take three weeks to agree on a hotel."</p>
+          <div class="test-person">
+            <div class="test-avatar"></div>
+            <div><div class="test-name">Priya Nair</div><div class="test-handle">Organized 4 group trips</div></div>
+          </div>
+        </div>
+        <div class="test-card reveal">
+          <div class="test-stars">★★★★★</div>
+          <p class="test-quote">"The expense splitting alone is worth it. Nobody 'forgot' to pay me back for the Airbnb this time."</p>
+          <div class="test-person">
+            <div class="test-avatar" style="background:linear-gradient(135deg,#7C5CFF,#FF6B4A);"></div>
+            <div><div class="test-name">Marcus Webb</div><div class="test-handle">Bachelor party planner</div></div>
+          </div>
+        </div>
+        <div class="test-card reveal">
+          <div class="test-stars">★★★★★</div>
+          <p class="test-quote">"First trip app my whole friend group actually opened more than once. That's the real benchmark."</p>
+          <div class="test-person">
+            <div class="test-avatar" style="background:linear-gradient(135deg,#FFB86B,#FF6B4A);"></div>
+            <div><div class="test-name">Sofia Reyes</div><div class="test-handle">Annual girls' trip host</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="waitlist" id="waitlist">
+    <div class="wrap">
+      <div class="waitlist-box reveal">
+        <h2>Be first in line when we launch</h2>
+        <p>Join the waitlist and get early access, founding-member pricing, and a say in what we build next.</p>
+        <form class="waitlist-form" id="waitlistForm" novalidate>
+          <label for="waitlistEmail" style="position:absolute;left:-9999px;">Email address</label>
+          <input type="email" id="waitlistEmail" name="email" placeholder="you@example.com" autocomplete="email" required>
+          <button type="submit" class="btn btn-primary">Join waitlist</button>
+        </form>
+        <div class="waitlist-msg" id="waitlistMsg" role="status" aria-live="polite"></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap footer-inner">
+    <div class="logo"><span class="logo-mark" style="width:24px;height:24px;font-size:13px;">✦</span>Fernweh</div>
+    <div class="footer-links">
+      <a href="#">Privacy</a>
+      <a href="#">Terms</a>
+      <a href="#">Support</a>
+      <a href="#">Instagram</a>
+    </div>
+    <div>© 2026 Fernweh. Made for people who plan trips.</div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+
+  // Smooth scroll for in-page nav links
+  document.querySelectorAll('a[href^="#"]').forEach(function(link){
+    link.addEventListener('click', function(e){
+      var id = link.getAttribute('href');
+      if(id.length < 2) return;
+      var target = document.querySelector(id);
+      if(target){
+        e.preventDefault();
+        target.scrollIntoView({behavior:'smooth', block:'start'});
+      }
+    });
+  });
+
+  // Scroll-reveal
+  var revealEls = document.querySelectorAll('.reveal');
+  if('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if(entry.isIntersecting){
+          entry.target.classList.add('is-visible');
+          io.unobserve(entry.target);
+        }
+      });
+    }, {threshold:0.15, rootMargin:'0px 0px -40px 0px'});
+    revealEls.forEach(function(el){ io.observe(el); });
+  } else {
+    revealEls.forEach(function(el){ el.classList.add('is-visible'); });
+  }
+
+  // Waitlist form validation
+  var form = document.getElementById('waitlistForm');
+  var input = document.getElementById('waitlistEmail');
+  var msg = document.getElementById('waitlistMsg');
+
+  function isValidEmail(value){
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+  }
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    var value = input.value.trim();
+    if(!value){
+      showError('Enter your email to join the waitlist.');
+      return;
+    }
+    if(!isValidEmail(value)){
+      showError("That email doesn't look right — double-check it.");
+      return;
+    }
+    input.classList.remove('error');
+    msg.className = 'waitlist-msg success';
+    msg.textContent = "You're on the list! Check your inbox for confirmation.";
+    form.reset();
+  });
+
+  input.addEventListener('input', function(){
+    if(input.classList.contains('error') && isValidEmail(input.value.trim())){
+      input.classList.remove('error');
+      msg.textContent = '';
+      msg.className = 'waitlist-msg';
+    }
+  });
+
+  function showError(text){
+    input.classList.add('error');
+    msg.className = 'waitlist-msg error';
+    msg.textContent = text;
+  }
+})();
+</script>
+</body>
+</html>

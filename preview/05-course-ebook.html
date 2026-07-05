@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Focused Writer — A 6-Week Course for Finishing What You Start</title>
+<meta name="description" content="A self-paced course and companion ebook for writers who start a hundred drafts and finish none. 6 modules, 40 lessons, lifetime access.">
+<style>
+  /* ============================================================
+     THEME TOKENS — edit this block to re-skin the entire page.
+     Every color, radius, and font reference below is pulled
+     from these custom properties. Nothing else needs to change.
+     ============================================================ */
+  :root{
+    --brand: #a8492f;        /* primary accent — links, buttons, numerals */
+    --brand-dark: #7e341f;   /* pressed/hover state of brand */
+    --bg: #f6f1e7;           /* page background — warm cream */
+    --surface: #fffdf8;      /* card / panel background */
+    --surface-2: #efe6d4;    /* secondary panel, subtle contrast band */
+    --text: #241d16;         /* primary ink color */
+    --muted: #6c6153;        /* secondary/quiet text */
+    --line: #e1d6c1;         /* hairline borders */
+    --radius: 18px;          /* corner rounding used across cards */
+    --radius-sm: 10px;
+    --serif: Georgia, "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Palatino, serif;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --shadow: 0 20px 50px -25px rgba(36,29,22,0.35);
+    --maxw: 1120px;
+  }
+
+  *,*::before,*::after{ box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--sans);
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  img,svg{ display:block; max-width:100%; }
+  a{ color:inherit; }
+  .wrap{ max-width:var(--maxw); margin:0 auto; padding:0 24px; }
+  h1,h2,h3,h4{ font-family:var(--serif); font-weight:400; margin:0; color:var(--text); }
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    font-size:13px; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--brand); font-weight:600;
+  }
+  .eyebrow::before{ content:""; width:22px; height:1px; background:var(--brand); display:inline-block; }
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    padding:15px 28px; border-radius:999px; font-size:15px; font-weight:600;
+    text-decoration:none; cursor:pointer; border:1px solid transparent;
+    transition:transform .25s ease, box-shadow .25s ease, background .25s ease;
+    font-family:var(--sans);
+  }
+  .btn-primary{ background:var(--brand); color:#fff9f2; box-shadow:0 14px 30px -12px rgba(168,73,47,.6); }
+  .btn-primary:hover{ background:var(--brand-dark); transform:translateY(-2px); }
+  .btn-ghost{ background:transparent; border-color:var(--line); color:var(--text); }
+  .btn-ghost:hover{ border-color:var(--brand); color:var(--brand); }
+
+  /* reveal-on-scroll */
+  .reveal{ opacity:0; transform:translateY(24px); transition:opacity .7s ease, transform .7s ease; }
+  .reveal.in{ opacity:1; transform:translateY(0); }
+
+  /* ---------- NAV ---------- */
+  header{
+    position:sticky; top:0; z-index:50;
+    background:rgba(246,241,231,.85); backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  nav.wrap{ display:flex; align-items:center; justify-content:space-between; padding:18px 24px; }
+  .logo{ font-family:var(--serif); font-size:20px; letter-spacing:.02em; }
+  .logo em{ font-style:italic; color:var(--brand); }
+  .nav-links{ display:flex; gap:32px; list-style:none; margin:0; padding:0; }
+  .nav-links a{ text-decoration:none; font-size:14.5px; color:var(--muted); transition:color .2s; }
+  .nav-links a:hover{ color:var(--text); }
+  .nav-cta{ display:flex; align-items:center; gap:18px; }
+  .nav-toggle{ display:none; background:none; border:none; cursor:pointer; padding:6px; }
+  .nav-toggle span{ display:block; width:22px; height:2px; background:var(--text); margin:5px 0; }
+
+  /* ---------- HERO ---------- */
+  .hero{ padding:88px 0 70px; position:relative; }
+  .hero-grid{ display:grid; grid-template-columns:1.15fr .85fr; gap:56px; align-items:center; }
+  .hero h1{ font-size:clamp(38px,5vw,62px); line-height:1.08; margin:20px 0 22px; }
+  .hero h1 i{ color:var(--brand); font-style:italic; }
+  .hero p.lead{ font-size:18px; color:var(--muted); max-width:46ch; margin-bottom:32px; }
+  .hero-actions{ display:flex; gap:16px; flex-wrap:wrap; align-items:center; margin-bottom:28px; }
+  .hero-note{ font-size:13.5px; color:var(--muted); }
+  .stars{ color:var(--brand); letter-spacing:2px; }
+
+  .hero-card{
+    background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+    box-shadow:var(--shadow); padding:0; overflow:hidden; position:relative;
+  }
+  .hero-card .cover{
+    height:220px; background:
+      radial-gradient(circle at 30% 20%, rgba(168,73,47,.35), transparent 60%),
+      linear-gradient(160deg, #2c231a, #171008);
+    position:relative; display:flex; align-items:center; justify-content:center;
+  }
+  .hero-card .cover .spine{
+    position:absolute; left:0; top:0; bottom:0; width:14px; background:var(--brand);
+  }
+  .hero-card .cover .title-mark{
+    font-family:var(--serif); color:#f6ead9; text-align:center; padding:0 30px;
+  }
+  .hero-card .cover .title-mark .k1{ font-size:12px; letter-spacing:.3em; text-transform:uppercase; opacity:.7; display:block; margin-bottom:10px;}
+  .hero-card .cover .title-mark .k2{ font-size:26px; font-style:italic; }
+  .hero-card .body{ padding:26px 28px; }
+  .hero-card .row{ display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px dashed var(--line); font-size:14.5px; }
+  .hero-card .row:last-of-type{ border-bottom:none; }
+  .hero-card .row span:first-child{ color:var(--muted); }
+  .hero-card .row span:last-child{ font-weight:600; }
+
+  /* ---------- SECTION SHELL ---------- */
+  section{ padding:96px 0; }
+  .section-head{ max-width:640px; margin:0 auto 56px; text-align:center; }
+  .section-head h2{ font-size:clamp(30px,4vw,42px); margin-top:16px; }
+  .section-head p{ color:var(--muted); margin-top:14px; font-size:16.5px; }
+  .band{ background:var(--surface-2); }
+
+  /* ---------- CURRICULUM ---------- */
+  .curriculum{ counter-reset:chapter; display:flex; flex-direction:column; gap:0; max-width:840px; margin:0 auto; }
+  .chapter{
+    counter-increment:chapter; display:grid; grid-template-columns:76px 1fr; gap:24px;
+    padding:30px 6px; border-bottom:1px solid var(--line); align-items:start;
+  }
+  .chapter:first-child{ border-top:1px solid var(--line); }
+  .chapter .num{ font-family:var(--serif); font-size:40px; color:var(--brand); line-height:1; }
+  .chapter .num::before{ content: counter(chapter, decimal-leading-zero); }
+  .chapter h3{ font-size:21px; margin-bottom:8px; }
+  .chapter p{ color:var(--muted); margin:0 0 10px; font-size:15px; max-width:60ch; }
+  .chapter .meta{ display:flex; gap:14px; font-size:12.5px; color:var(--brand); font-weight:600; text-transform:uppercase; letter-spacing:.05em; }
+
+  /* ---------- AUTHOR ---------- */
+  .author-card{
+    display:grid; grid-template-columns:220px 1fr; gap:40px; align-items:center;
+    background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
+    padding:44px; box-shadow:var(--shadow); max-width:900px; margin:0 auto;
+  }
+  .author-photo{
+    width:100%; aspect-ratio:1/1; border-radius:50%;
+    background:
+      radial-gradient(circle at 35% 30%, #cf8a63, #7e341f 70%);
+    position:relative; box-shadow:inset 0 0 0 6px var(--surface), 0 0 0 1px var(--line);
+  }
+  .author-photo::after{
+    content:""; position:absolute; inset:18%; border-radius:50%;
+    background:linear-gradient(160deg, rgba(255,255,255,.35), transparent 60%);
+  }
+  .author-card blockquote{ font-family:var(--serif); font-style:italic; font-size:19px; margin:0 0 16px; line-height:1.5; }
+  .author-card .name{ font-weight:700; font-size:15px; }
+  .author-card .role{ color:var(--muted); font-size:14px; }
+
+  /* ---------- TESTIMONIALS ---------- */
+  .wall{ column-count:3; column-gap:22px; max-width:1080px; margin:0 auto; }
+  .tcard{
+    break-inside:avoid; margin-bottom:22px; background:var(--surface);
+    border:1px solid var(--line); border-radius:var(--radius-sm); padding:26px;
+  }
+  .tcard .stars{ margin-bottom:12px; font-size:14px; }
+  .tcard p{ font-size:14.5px; color:var(--text); margin:0 0 16px; }
+  .tcard .who{ display:flex; align-items:center; gap:10px; }
+  .tcard .avatar{ width:34px; height:34px; border-radius:50%; flex-shrink:0; }
+  .tcard .who strong{ display:block; font-size:13.5px; }
+  .tcard .who span{ font-size:12px; color:var(--muted); }
+
+  /* ---------- PRICING ---------- */
+  .pricing-wrap{ display:flex; justify-content:center; }
+  .price-card{
+    max-width:460px; width:100%; background:var(--surface); border:1px solid var(--line);
+    border-radius:var(--radius); box-shadow:var(--shadow); padding:44px; text-align:center; position:relative;
+  }
+  .price-card .badge{
+    position:absolute; top:-16px; left:50%; transform:translateX(-50%);
+    background:var(--brand); color:#fff; font-size:12px; font-weight:700;
+    letter-spacing:.06em; text-transform:uppercase; padding:8px 18px; border-radius:999px;
+    box-shadow:0 10px 20px -8px rgba(168,73,47,.6);
+  }
+  .price-card .amount{ font-family:var(--serif); font-size:56px; margin:22px 0 4px; }
+  .price-card .amount sup{ font-size:22px; top:-22px; position:relative; color:var(--muted); }
+  .price-card .was{ color:var(--muted); text-decoration:line-through; font-size:15px; }
+  .price-card ul{ list-style:none; padding:0; margin:28px 0; text-align:left; display:flex; flex-direction:column; gap:14px; }
+  .price-card li{ display:flex; gap:10px; font-size:14.5px; align-items:flex-start; }
+  .price-card li svg{ flex-shrink:0; margin-top:2px; color:var(--brand); }
+  .price-card .btn{ width:100%; }
+  .guarantee{
+    margin-top:26px; display:flex; align-items:center; gap:12px; justify-content:center;
+    font-size:13px; color:var(--muted);
+  }
+  .guarantee svg{ color:var(--brand); flex-shrink:0; }
+
+  /* ---------- FAQ ---------- */
+  .faq{ max-width:760px; margin:0 auto; }
+  .faq-item{ border-bottom:1px solid var(--line); }
+  .faq-item button{
+    width:100%; text-align:left; background:none; border:none; cursor:pointer;
+    padding:22px 4px; display:flex; justify-content:space-between; align-items:center;
+    gap:20px; font-family:var(--sans); font-size:16.5px; font-weight:600; color:var(--text);
+  }
+  .faq-item .plus{ flex-shrink:0; width:22px; height:22px; position:relative; }
+  .faq-item .plus::before,.faq-item .plus::after{
+    content:""; position:absolute; background:var(--brand); border-radius:2px;
+    transition:transform .3s ease;
+  }
+  .faq-item .plus::before{ left:0; top:50%; width:100%; height:2px; transform:translateY(-50%); }
+  .faq-item .plus::after{ top:0; left:50%; width:2px; height:100%; transform:translateX(-50%); }
+  .faq-item.open .plus::after{ transform:translateX(-50%) rotate(90deg); opacity:0; }
+  .faq-item .answer{ max-height:0; overflow:hidden; transition:max-height .35s ease; }
+  .faq-item .answer p{ padding:0 4px 24px; color:var(--muted); font-size:15px; max-width:64ch; }
+
+  /* ---------- FINAL CTA ---------- */
+  .final-cta{
+    text-align:center; background:linear-gradient(160deg,#2c231a,#171008);
+    border-radius:28px; padding:70px 30px; color:#f6ead9; max-width:var(--maxw); margin:0 auto;
+  }
+  .final-cta h2{ color:#f6ead9; font-size:clamp(28px,4vw,44px); }
+  .final-cta p{ color:#cbbfa9; max-width:50ch; margin:16px auto 30px; }
+
+  footer{ border-top:1px solid var(--line); padding:50px 0 30px; }
+  .foot-grid{ display:flex; justify-content:space-between; flex-wrap:wrap; gap:30px; margin-bottom:30px; }
+  .foot-links{ display:flex; gap:26px; list-style:none; padding:0; margin:0; flex-wrap:wrap; }
+  .foot-links a{ text-decoration:none; color:var(--muted); font-size:14px; }
+  .foot-links a:hover{ color:var(--brand); }
+  .foot-bottom{ font-size:13px; color:var(--muted); border-top:1px solid var(--line); padding-top:22px; }
+
+  @media (max-width:860px){
+    .hero-grid{ grid-template-columns:1fr; }
+    .author-card{ grid-template-columns:1fr; text-align:center; padding:34px; }
+    .author-photo{ width:140px; margin:0 auto; }
+    .wall{ column-count:2; }
+  }
+  @media (max-width:640px){
+    .nav-links, .nav-cta .btn-ghost{ display:none; }
+    .nav-toggle{ display:block; }
+    .wall{ column-count:1; }
+    .chapter{ grid-template-columns:52px 1fr; }
+    .chapter .num{ font-size:28px; }
+    section{ padding:64px 0; }
+    .price-card{ padding:30px 22px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <nav class="wrap">
+    <div class="logo">Quiet<em>Draft</em></div>
+    <ul class="nav-links">
+      <li><a href="#curriculum">Curriculum</a></li>
+      <li><a href="#author">Author</a></li>
+      <li><a href="#reviews">Reviews</a></li>
+      <li><a href="#faq">FAQ</a></li>
+    </ul>
+    <div class="nav-cta">
+      <a href="#pricing" class="btn btn-ghost">Enroll</a>
+      <button class="nav-toggle" id="navToggle" aria-label="Menu"><span></span><span></span><span></span></button>
+    </div>
+  </nav>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <span class="eyebrow">A course + companion ebook</span>
+        <h1>Finish the book you keep <i>almost</i> writing.</h1>
+        <p class="lead">Six weeks, forty short lessons, and one stubborn promise: by the end you'll have a finished manuscript, not another folder of beginnings.</p>
+        <div class="hero-actions">
+          <a href="#pricing" class="btn btn-primary">Start the course — $89</a>
+          <a href="#curriculum" class="btn btn-ghost">See the curriculum</a>
+        </div>
+        <p class="hero-note"><span class="stars">★★★★★</span> 4.9 from 1,204 writers who finished their draft</p>
+      </div>
+      <div class="hero-card reveal">
+        <div class="cover">
+          <div class="spine"></div>
+          <div class="title-mark">
+            <span class="k1">The Companion Ebook</span>
+            <span class="k2">The Finished<br>Draft</span>
+          </div>
+        </div>
+        <div class="body">
+          <div class="row"><span>Format</span><span>Video + 212pg ebook</span></div>
+          <div class="row"><span>Modules</span><span>6 modules · 40 lessons</span></div>
+          <div class="row"><span>Access</span><span>Lifetime, self-paced</span></div>
+          <div class="row"><span>Community</span><span>Private writers' circle</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow">The problem</span>
+        <h2>You don't need more ideas. You need a finishing system.</h2>
+        <p>Most writing advice teaches you how to start. This course is built entirely around the much harder, much lonelier middle — the part where 96% of manuscripts die.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="curriculum">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow">Curriculum</span>
+        <h2>Six modules. One manuscript.</h2>
+        <p>Each module ships as short video lessons plus a matching chapter in the companion ebook, so you can read on the train and watch at your desk.</p>
+      </div>
+      <div class="curriculum">
+        <div class="chapter reveal">
+          <div class="num"></div>
+          <div>
+            <h3>The Blank Page Isn't the Enemy</h3>
+            <p>Diagnose exactly why your last three drafts stalled, and build a one-page project brief that survives contact with self-doubt.</p>
+            <div class="meta"><span>6 lessons</span><span>52 min</span></div>
+          </div>
+        </div>
+        <div class="chapter reveal">
+          <div class="num"></div>
+          <div>
+            <h3>Structure Before Sentences</h3>
+            <p>A flexible outlining method for people who hate outlines — scenes, beats, and a spine you can rearrange without starting over.</p>
+            <div class="meta"><span>7 lessons</span><span>64 min</span></div>
+          </div>
+        </div>
+        <div class="chapter reveal">
+          <div class="num"></div>
+          <div>
+            <h3>The 20-Minute Draft Habit</h3>
+            <p>How to write consistently around a job, kids, and a phone that will not stop buzzing. No 5am miracle mornings required.</p>
+            <div class="meta"><span>8 lessons</span><span>71 min</span></div>
+          </div>
+        </div>
+        <div class="chapter reveal">
+          <div class="num"></div>
+          <div>
+            <h3>Surviving the Middle</h3>
+            <p>The exact week-by-week plan I use to push clients through the sagging middle third, where most manuscripts quietly die.</p>
+            <div class="meta"><span>6 lessons</span><span>58 min</span></div>
+          </div>
+        </div>
+        <div class="chapter reveal">
+          <div class="num"></div>
+          <div>
+            <h3>Revision Without Despair</h3>
+            <p>A calm, non-destructive editing pass that fixes structure first, sentences second, and never touches your confidence.</p>
+            <div class="meta"><span>7 lessons</span><span>66 min</span></div>
+          </div>
+        </div>
+        <div class="chapter reveal">
+          <div class="num"></div>
+          <div>
+            <h3>Shipping It</h3>
+            <p>Query letters, self-publishing basics, or simply printing one copy for your own shelf — how to call it done and mean it.</p>
+            <div class="meta"><span>6 lessons</span><span>49 min</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="author">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow">Your instructor</span>
+        <h2>Taught by someone who has actually finished things.</h2>
+      </div>
+      <div class="author-card reveal">
+        <div class="author-photo"></div>
+        <div>
+          <blockquote>"I wrote four unfinished novels before I understood that finishing is a skill, not a feeling. This course is everything I wish someone had handed me at draft one."</blockquote>
+          <div class="name">Maren Iversen</div>
+          <div class="role">Author of three published novels · former developmental editor at a Big Five imprint · has helped 1,200+ writers finish a draft</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="reviews">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow">Reviews</span>
+        <h2>Writers who stopped starting over</h2>
+      </div>
+      <div class="wall">
+        <div class="tcard reveal"><div class="stars">★★★★★</div><p>"I'd started the same novel four times over six years. I finished this one in five months. The 20-minute habit alone was worth the price."</p><div class="who"><div class="avatar" style="background:linear-gradient(160deg,#a8492f,#5c2818)"></div><div><strong>Priya N.</strong><span>Finished her debut novel</span></div></div></div>
+        <div class="tcard reveal"><div class="stars">★★★★★</div><p>"Module 4 on surviving the middle should be printed and handed to every writer on day one. It's the reason I didn't quit at 40,000 words."</p><div class="who"><div class="avatar" style="background:linear-gradient(160deg,#6c6153,#241d16)"></div><div><strong>Daniel R.</strong><span>Memoirist</span></div></div></div>
+        <div class="tcard reveal"><div class="stars">★★★★★</div><p>"Practical, warm, zero fluff. The ebook alone has more usable advice than three writing books I paid full price for."</p><div class="who"><div class="avatar" style="background:linear-gradient(160deg,#cf8a63,#7e341f)"></div><div><strong>Sofia M.</strong><span>Short story collection</span></div></div></div>
+        <div class="tcard reveal"><div class="stars">★★★★★</div><p>"I'm a slow writer and always felt broken because of it. This course finally gave me a system that works with my pace, not against it."</p><div class="who"><div class="avatar" style="background:linear-gradient(160deg,#a8492f,#241d16)"></div><div><strong>Owen T.</strong><span>Fantasy trilogy, book one</span></div></div></div>
+        <div class="tcard reveal"><div class="stars">★★★★★</div><p>"The revision module changed how I think about editing entirely. Structure first really does save you from rewriting sentences that get cut anyway."</p><div class="who"><div class="avatar" style="background:linear-gradient(160deg,#7e341f,#2c231a)"></div><div><strong>Harriet L.</strong><span>Literary fiction</span></div></div></div>
+        <div class="tcard reveal"><div class="stars">★★★★★</div><p>"Worth it just for the private community. Having 1,200 other people quietly finishing their drafts alongside you is unreasonably motivating."</p><div class="who"><div class="avatar" style="background:linear-gradient(160deg,#6c6153,#a8492f)"></div><div><strong>Marcus B.</strong><span>Nonfiction proposal</span></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="pricing">
+    <div class="wrap pricing-wrap">
+      <div class="price-card reveal">
+        <span class="badge">Limited launch price</span>
+        <span class="eyebrow">The Finished Draft</span>
+        <div class="amount"><sup>$</sup>89</div>
+        <div class="was">$149</div>
+        <ul>
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> 6 modules, 40 video lessons, lifetime access</li>
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> 212-page companion ebook (PDF, EPUB, MOBI)</li>
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Printable outline templates and revision checklists</li>
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> Invitation to the private writers' circle</li>
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg> All future updates, free, forever</li>
+        </ul>
+        <a href="#" class="btn btn-primary">Get instant access</a>
+        <div class="guarantee">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z"/></svg>
+          30-day no-questions money-back guarantee
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="faq">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow">Questions</span>
+        <h2>Before you enroll</h2>
+      </div>
+      <div class="faq">
+        <div class="faq-item reveal">
+          <button aria-expanded="false">I've never finished anything I've started. Will this actually work for me? <span class="plus"></span></button>
+          <div class="answer"><p>That's exactly who this course is for. Module 3 and 4 exist specifically for chronic starters — the habit system and the middle-of-the-book plan are the two most-cited reasons students finish this time.</p></div>
+        </div>
+        <div class="faq-item reveal">
+          <button aria-expanded="false">Fiction or nonfiction — does it matter? <span class="plus"></span></button>
+          <div class="answer"><p>The course is genre-agnostic by design. Roughly 60% of students are writing fiction, 40% memoir, nonfiction, or a proposal. Every framework flexes to your project.</p></div>
+        </div>
+        <div class="faq-item reveal">
+          <button aria-expanded="false">How long do I have access? <span class="plus"></span></button>
+          <div class="answer"><p>Forever. One payment, lifetime access to the videos, the ebook, all templates, and every future update to the material.</p></div>
+        </div>
+        <div class="faq-item reveal">
+          <button aria-expanded="false">What if it isn't for me? <span class="plus"></span></button>
+          <div class="answer"><p>Email within 30 days of purchase for a full refund, no questions, no forms. If it doesn't help you finish, you shouldn't pay for it.</p></div>
+        </div>
+        <div class="faq-item reveal">
+          <button aria-expanded="false">Do I need any writing experience? <span class="plus"></span></button>
+          <div class="answer"><p>None. Roughly a third of students start module one with nothing but a half-finished first chapter. The system meets you wherever your draft currently is.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="final-cta reveal">
+        <span class="eyebrow" style="color:#e6a17f;">Last call</span>
+        <h2>Your finished draft is closer than you think.</h2>
+        <p>Enroll today and get the private community access immediately — most students post their first pages within a week.</p>
+        <a href="#pricing" class="btn btn-primary">Start the course — $89</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="logo">Quiet<em>Draft</em></div>
+      <ul class="foot-links">
+        <li><a href="#curriculum">Curriculum</a></li>
+        <li><a href="#author">Author</a></li>
+        <li><a href="#reviews">Reviews</a></li>
+        <li><a href="#faq">FAQ</a></li>
+        <li><a href="#">Contact</a></li>
+        <li><a href="#">Terms</a></li>
+      </ul>
+    </div>
+    <div class="foot-bottom">&copy; 2026 QuietDraft. All rights reserved. Built for people who finish.</div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+
+  // Smooth scroll for in-page anchors
+  document.querySelectorAll('a[href^="#"]').forEach(function(link){
+    link.addEventListener('click', function(e){
+      var id = this.getAttribute('href');
+      if(id.length > 1){
+        var target = document.querySelector(id);
+        if(target){
+          e.preventDefault();
+          target.scrollIntoView({behavior:'smooth', block:'start'});
+        }
+      }
+    });
+  });
+
+  // Mobile nav toggle
+  var navToggle = document.getElementById('navToggle');
+  var navLinks = document.querySelector('.nav-links');
+  if(navToggle && navLinks){
+    navToggle.addEventListener('click', function(){
+      var open = navLinks.style.display === 'flex';
+      if(open){
+        navLinks.style.display = '';
+      } else {
+        navLinks.style.cssText = 'display:flex;flex-direction:column;position:absolute;top:64px;left:0;right:0;background:var(--surface);padding:20px 24px;gap:18px;border-bottom:1px solid var(--line);';
+      }
+    });
+  }
+
+  // Scroll-reveal via IntersectionObserver
+  var revealEls = document.querySelectorAll('.reveal');
+  if('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if(entry.isIntersecting){
+          entry.target.classList.add('in');
+          io.unobserve(entry.target);
+        }
+      });
+    }, {threshold:0.12, rootMargin:'0px 0px -40px 0px'});
+    revealEls.forEach(function(el){ io.observe(el); });
+  } else {
+    revealEls.forEach(function(el){ el.classList.add('in'); });
+  }
+
+  // FAQ accordion
+  document.querySelectorAll('.faq-item button').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var item = btn.closest('.faq-item');
+      var answer = item.querySelector('.answer');
+      var isOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item.open').forEach(function(openItem){
+        if(openItem !== item){
+          openItem.classList.remove('open');
+          openItem.querySelector('.answer').style.maxHeight = null;
+          openItem.querySelector('button').setAttribute('aria-expanded','false');
+        }
+      });
+      if(isOpen){
+        item.classList.remove('open');
+        answer.style.maxHeight = null;
+        btn.setAttribute('aria-expanded','false');
+      } else {
+        item.classList.add('open');
+        answer.style.maxHeight = answer.scrollHeight + 'px';
+        btn.setAttribute('aria-expanded','true');
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>
